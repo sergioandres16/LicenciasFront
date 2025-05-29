@@ -1,0 +1,30 @@
+<div class="wrapper default-theme" [ngClass]="getClasses()">
+  <div class="page-wrapper" [ngClass]="{'toggled': getSideBarState()}">
+    <!-- Sidebar -->
+    <app-sidebar></app-sidebar>
+
+    <!-- Contenido principal -->
+    <main class="page-content">
+      <div class="container-fluid">
+        <div class="row" style="margin-top: 15px;">
+          <!-- Botón para cambiar el estado del sidebar -->
+          <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-xs-5 estilos">
+            <a type="button" (click)="toggleSidebar()">
+              <img src="assets/img/favicon.ico" width="50" height="50" alt="Toggle sidebar">
+            </a>
+          </div>
+          <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 text-end">
+            <p class="fecha">{{ fecha }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <br /><br />
+          <!-- Renderización de las rutas hijas -->
+          <router-outlet></router-outlet>
+          <!-- Overlay para cerrar el sidebar en móviles -->
+          <div class="overlay" (click)="toggleSidebar()" [ngClass]="{'show': !getSideBarState()}"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

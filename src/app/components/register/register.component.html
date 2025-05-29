@@ -1,0 +1,66 @@
+<div class="login-box">
+  <div class="logo-container">
+    <img class="logo" src="/assets/img/logo-licencias.png" alt="logo">
+  </div>
+  <h2>Registrarse</h2>
+
+  <form #registerForm="ngForm" (ngSubmit)="onRegister()" novalidate>
+
+    <!-- Campo de Nombre de Usuario -->
+    <div class="user-box">
+      <input
+        type="text"
+        name="username"
+        [(ngModel)]="username"
+        required
+        #usernameRef="ngModel"
+        [ngClass]="{'is-invalid': usernameRef.invalid && usernameRef.touched}"
+      />
+      <label>Nombre de usuario</label>
+      <div *ngIf="usernameRef.invalid && usernameRef.touched" class="invalid-feedback">
+        El nombre de usuario es obligatorio.
+      </div>
+    </div>
+
+    <!-- Campo de Email -->
+    <div class="user-box">
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="email"
+        required
+        #emailRef="ngModel"
+        [ngClass]="{'is-invalid': emailRef.invalid && emailRef.touched}"
+      />
+      <label>Email</label>
+      <div *ngIf="emailRef.invalid && emailRef.touched" class="invalid-feedback">
+        El email es obligatorio y debe ser válido.
+      </div>
+    </div>
+
+    <!-- Campo de Contraseña -->
+    <div class="user-box">
+      <input
+        type="password"
+        name="password"
+        [(ngModel)]="password"
+        required
+        #passwordRef="ngModel"
+        [ngClass]="{'is-invalid': passwordRef.invalid && passwordRef.touched}"
+      />
+      <label>Contraseña</label>
+      <div *ngIf="passwordRef.invalid && passwordRef.touched" class="invalid-feedback">
+        La contraseña es obligatoria.
+      </div>
+    </div>
+
+    <div class="button-container">
+      <button type="submit">Registrarse</button>
+    </div>
+  </form>
+
+  <p class="register-link">
+    ¿Ya tienes cuenta?
+    <a class="estiloa" (click)="goToLogin()">Inicia sesión aquí</a>
+  </p>
+</div>

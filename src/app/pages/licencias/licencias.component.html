@@ -1,0 +1,137 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h1 class="titulo">Validación de Licencias</h1>
+          <p class="subtitulo">Valide licencias por dirección MAC</p>
+        </div>
+
+        <div class="card-body">
+          <!-- Formulario de validación -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="macAddress" class="form-label">Dirección MAC <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="macAddress"
+                  class="form-control"
+                  [(ngModel)]="macAddress"
+                  (input)="formatMac($event)"
+                  placeholder="AA-BB-CC-DD-EE-FF"
+                  maxlength="17"
+                  required>
+                <small class="form-text text-muted">Formato: XX-XX-XX-XX-XX-XX</small>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="empresa" class="form-label">Empresa</label>
+                <input
+                  type="text"
+                  id="empresa"
+                  class="form-control"
+                  [(ngModel)]="empresa"
+                  placeholder="Nombre de la empresa">
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <div class="form-group">
+                <label for="aplicacion" class="form-label">Aplicación</label>
+                <input
+                  type="text"
+                  id="aplicacion"
+                  class="form-control"
+                  [(ngModel)]="aplicacion"
+                  placeholder="Nombre de la aplicación">
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <button
+                type="button"
+                class="btn btn-primary me-2"
+                (click)="validarLicencia()"
+                [disabled]="isLoading || !macAddress.trim()">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                {{ isLoading ? 'Validando...' : 'Validar Licencia' }}
+              </button>
+
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="limpiarFormulario()">
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultado de la validación -->
+  <div class="row mt-4" *ngIf="validationResult">
+    <div class="col-12">
+      <div class="card result-card" [ngClass]="{'success-card': validationResult.valido, 'error-card': !validationResult.valido}">
+        <div class="card-header">
+          <h3 class="result-title">
+            <i class="icon" [ngClass]="validationResult.valido ? 'pi pi-check-circle' : 'pi pi-times-circle'"></i>
+            Resultado de la Validación
+          </h3>
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="result-item">
+                <strong>Estado:</strong>
+                <span class="badge" [ngClass]="validationResult.valido ? 'bg-success' : 'bg-danger'">
+                  {{ validationResult.estado }}
+                </span>
+              </div>
+
+              <div class="result-item">
+                <strong>Dirección MAC:</strong>
+                <span>{{ validationResult.mac }}</span>
+              </div>
+
+              <div class="result-item" *ngIf="validationResult.empresa">
+                <strong>Empresa:</strong>
+                <span>{{ validationResult.empresa }}</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="result-item">
+                <strong>Mensaje:</strong>
+                <span>{{ validationResult.mensaje }}</span>
+              </div>
+
+              <div class="result-item">
+                <strong>Fecha de Validación:</strong>
+                <span>{{ validationResult.fechaValidacion | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+              </div>
+
+              <div class="result-item" *ngIf="validationResult.ultimaValidacion">
+                <strong>Última Validación:</strong>
+                <span>{{ validationResult.ultimaValidacion | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert mt-3" [ngClass]="validationResult.valido ? 'alert-success' : 'alert-danger'">
+            <strong>{{ validationResult.valido ? 'Éxito:' : 'Error:' }}</strong>
+            {{ validationResult.mensaje }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

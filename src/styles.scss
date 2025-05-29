@@ -1,1 +1,306 @@
-/* You can add global styles to this file, and also import other style files */
+// Importa Bootstrap SCSS
+@use 'bootstrap/scss/bootstrap' as *;
+
+// PrimeIcons es un archivo CSS, por ello se importa con @import
+@import 'primeicons/primeicons.css';
+
+// Variables personalizadas
+$hamburger-padding-x: 0px !default;
+$hamburger-padding-y: 0px !default;
+$hamburger-layer-width: 25px !default;
+$hamburger-layer-height: 2px !default;
+$hamburger-layer-spacing: 5px !default;
+$hamburger-layer-color: #9b9ea2 !default;
+$hamburger-layer-border-radius: 4px !default;
+$hamburger-hover-opacity: 0.7 !default;
+
+/* Importa hojas de estilo CSS de terceros */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+@import 'perfect-scrollbar/css/perfect-scrollbar.css';
+@import 'primeflex/primeflex.css';
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css');
+
+body {
+  font-size: 0.9rem;
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+html, body {
+  height: 100%;
+}
+
+// Colores del tema principal
+:root {
+  --primary-color: #2c5aa0;
+  --secondary-color: #1e3a5f;
+  --accent-color: #03e9f4;
+  --text-color: #333;
+  --bg-color: #f8f9fa;
+}
+
+.page-wrapper.toggled .sidebar {
+  left: -300px;
+}
+
+/* Estilos para Perfect Scrollbar */
+.sidebar .ps.ps--scrolling-y > .ps__rail-y,
+.sidebar > .ps.ps--scrolling-x > .ps__rail-x,
+.ps .ps__rail-x:hover,
+.ps .ps__rail-y:hover,
+.ps .ps__rail-x:focus,
+.ps .ps__rail-y:focus,
+.ps .ps__rail-x.ps--clicking,
+.ps .ps__rail-y.ps--clicking {
+  background-color: transparent !important;
+}
+
+.sidebar .ps.ps--active-y > .ps__rail-y:hover,
+.sidebar > .ps.ps--active-y > .ps__rail-y.ps--clicking {
+  width: 10px !important;
+}
+
+.ps__thumb-y {
+  background-color: #fff !important;
+  width: 6px !important;
+  border-radius: 0px !important;
+  opacity: 0.5;
+}
+
+/* Fuentes personalizadas */
+@font-face {
+  font-family: roboto;
+  src: url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+}
+
+/* Estilos para formularios */
+.form-control {
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  padding: 10px 15px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(44, 90, 160, 0.25);
+  }
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+/* Estilos para botones */
+.btn {
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  padding: 10px 20px;
+
+  &.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    border: none;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(44, 90, 160, 0.4);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+
+    &:hover {
+      background-color: #545b62;
+      transform: translateY(-1px);
+    }
+  }
+
+  &.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+    }
+  }
+
+  &.btn-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+    border: none;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    }
+  }
+}
+
+/* Estilos para cards */
+.card {
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: none;
+  background: white;
+
+  .card-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    border-radius: 10px 10px 0 0 !important;
+    border-bottom: none;
+  }
+
+  .card-body {
+    padding: 25px;
+  }
+}
+
+/* Estilos para alerts */
+.alert {
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+
+  &.alert-success {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: #155724;
+    border-left: 4px solid #28a745;
+  }
+
+  &.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+  }
+
+  &.alert-warning {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #856404;
+    border-left: 4px solid #ffc107;
+  }
+
+  &.alert-info {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: #0c5460;
+    border-left: 4px solid #17a2b8;
+  }
+}
+
+/* Estilos para badges */
+.badge {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+
+  &.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  }
+
+  &.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%) !important;
+  }
+
+  &.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: #000 !important;
+  }
+
+  &.bg-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%) !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 15px;
+  }
+
+  .card-body {
+    padding: 20px !important;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.5s ease-in-out;
+}
+
+/* Spinner personalizado */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Utilidades */
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.bg-primary {
+  background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}

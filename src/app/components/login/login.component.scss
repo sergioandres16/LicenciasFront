@@ -1,0 +1,146 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background: linear-gradient(#141e30, #243b55);
+  min-height: 100vh;
+}
+
+.login-box {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
+  padding: 40px;
+  background: #2c5aa0;
+  box-sizing: border-box;
+  box-shadow: 0 15px 25px rgb(167 167 167 / 60%);
+  border-radius: 10px;
+  color: #fff;
+}
+
+.login-box h2 {
+  margin: 0 0 30px;
+  padding: 0;
+  text-align: center;
+}
+
+.user-box {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.user-box input {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #fff;
+  outline: none;
+  color: #fff;
+}
+
+.user-box label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  transition: 0.5s;
+  font-size: 16px;
+  color: #fff;
+}
+
+.user-box input:focus ~ label,
+.user-box input.ng-dirty ~ label {
+  top: -20px;
+  left: 0;
+  font-size: 12px;
+  color: #03e9f4;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.login-box button {
+  position: relative;
+  display: inline-block;
+  padding: 10px 30px;
+  font-size: 20px;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 3px;
+  background-color: #0d7377;
+  color: white;
+  border: 2px solid #2c5aa0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  outline: none;
+}
+
+.login-box button:hover {
+  background: #03e9f4;
+  color: #2c5aa0;
+  box-shadow: 0 0 5px #03e9f4,
+  0 0 25px #03e9f4,
+  0 0 50px #03e9f4,
+  0 0 100px #03e9f4;
+}
+
+.error-message {
+  margin-bottom: 15px;
+  background-color: #f8d7da;
+  color: #8f2e36;
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 5px;
+  display: block;
+}
+
+.is-invalid {
+  border-bottom-color: #dc3545 !important;
+}
+
+.register-link {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.logo-container {
+  text-align: center;
+  margin-bottom: -20px;
+  padding-top: 0;
+  position: relative;
+}
+
+.logo {
+  height: 200px;
+  width: 200px;
+  object-fit: contain;
+  margin-top: -35px;
+}
+
+.estiloa {
+  color: #03e9f4;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+.estiloa:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}

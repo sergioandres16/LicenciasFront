@@ -4,11 +4,11 @@
   .page-content {
     display: inline-block;
     width: 100%;
-    padding-top: 20px;
-    transition: padding-left .3s ease;
+    padding-top: 8px;
+    transition: padding-left 0.3s ease;
 
     @media screen and (min-width: 768px) {
-      padding-left: 300px;
+      padding-left: 240px;
     }
 
     .overlay {
@@ -19,7 +19,7 @@
       left: 0;
       z-index: 998;
       background: #000;
-      opacity: .5;
+      opacity: 0.5;
       display: none;
 
       &.show {
@@ -36,7 +36,7 @@
 
   &.toggled {
     .page-content {
-      padding-left: 0;
+      padding-left: 0px;
     }
   }
 
@@ -48,4 +48,38 @@
     margin: 5px;
     letter-spacing: 1px;
   }
+
+  .estilos {
+    margin: auto 20px;
+  }
+
+  .fecha {
+    margin: 5px;
+    font-size: 20px;
+    color: #2c5aa0;
+    font-family: 'Times New Roman', Times, serif;
+  }
+}
+
+.wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background-color: #2c5aa0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.page-content {
+  flex-grow: 1;
+  margin-left: 40px;
+  padding: 20px;
+  width: calc(100% - 240px);
+  overflow-y: visible;
 }
