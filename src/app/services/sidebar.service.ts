@@ -55,7 +55,7 @@ export class SidebarService {
         },
         submenus: [
           {
-            title: 'Validar Licencias',
+            title: 'Gestionar Licencias',
             icon: 'assets/img/icon_licencias.gif',
             url: 'licencias'
           }
