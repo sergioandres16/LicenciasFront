@@ -1,18 +1,20 @@
 import { Component, OnInit, OnDestroy, ViewChild, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LicenciaManagementService, Licencia, CreateLicenciaRequest, UpdateLicenciaRequest } from '../../services/licencia-management.service';
-import Swal from 'sweetalert2';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { LicenciaManagementService, Licencia, CreateLicenciaRequest, UpdateLicenciaRequest } from '../../services/licencia-management.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-licencias',
@@ -21,15 +23,16 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatIconModule,
     MatTableModule,
     MatPaginatorModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
     MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
     MatTooltipModule
   ],
   templateUrl: './licencias.component.html',
@@ -74,7 +77,8 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   constructor(
     private licenciaService: LicenciaManagementService,
     private fb: FormBuilder,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.createForm();
   }
@@ -157,19 +161,23 @@ export class LicenciasComponent implements OnInit, OnDestroy {
       let vigenciaValor = 1;
       let vigenciaUnidad = 'dias';
 
-      if (licencia.vigenciaDias) {
-        if (licencia.vigenciaDias % 365 === 0) {
-          vigenciaValor = licencia.vigenciaDias / 365;
-          vigenciaUnidad = 'anos';
-        } else if (licencia.vigenciaDias % 30 === 0) {
-          vigenciaValor = licencia.vigenciaDias / 30;
-          vigenciaUnidad = 'meses';
-        } else if (licencia.vigenciaDias % 7 === 0) {
-          vigenciaValor = licencia.vigenciaDias / 7;
-          vigenciaUnidad = 'semanas';
-        } else {
-          vigenciaValor = licencia.vigenciaDias;
-          vigenciaUnidad = 'dias';
+      if (licencia.vigencia) {
+        const match = licencia.vigencia.match(/(\d+)\s*(hora|día|dia|semana|mes|mese|año|ano)s?/i);
+        if (match) {
+          vigenciaValor = parseInt(match[1]);
+          const unidad = match[2].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+          if (unidad.includes('hora')) {
+            vigenciaUnidad = 'horas';
+          } else if (unidad.includes('dia')) {
+            vigenciaUnidad = 'dias';
+          } else if (unidad.includes('semana')) {
+            vigenciaUnidad = 'semanas';
+          } else if (unidad.includes('mes')) {
+            vigenciaUnidad = 'meses';
+          } else if (unidad.includes('ano')) {
+            vigenciaUnidad = 'anos';
+          }
         }
       }
 
@@ -293,6 +301,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
       value = value.substring(0, 12);
     }
 
+    // Agregar guiones cada 2 caracteres
     let formatted = '';
     for (let i = 0; i < value.length; i += 2) {
       if (i > 0) formatted += '-';

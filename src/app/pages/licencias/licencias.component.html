@@ -85,7 +85,7 @@
 
               <!-- Días Restantes Column -->
               <ng-container matColumnDef="diasRestantes">
-                <th mat-header-cell *matHeaderCellDef> Días Restantes </th>
+                <th mat-header-cell *matHeaderCellDef> Vigencia Restante </th>
                 <td mat-cell *matCellDef="let licencia">
                   <span [ngClass]="getDiasRestantesClass(licencia)">
                     {{getDiasRestantesInfo(licencia)}}
