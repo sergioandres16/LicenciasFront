@@ -85,10 +85,10 @@ export class LicenciasComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadLicencias();
-    // Actualizar cada minuto para refrescar el tiempo restante
+    // Actualizar cada 30 segundos para refrescar el tiempo restante más frecuentemente
     this.updateTimer = setInterval(() => {
       this.loadLicencias();
-    }, 60000); // 60 segundos
+    }, 30000); // 30 segundos
   }
 
   ngOnDestroy(): void {
@@ -325,6 +325,11 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   }
 
   getDiasRestantesInfo(licencia: Licencia): string {
+    // Si está inactivo, mostrar mensaje específico
+    if (licencia.estado === '0' || !licencia.activo) {
+      return 'Sin tiempo restante';
+    }
+
     if (!licencia.tiempoRestante) {
       return 'Sin tiempo restante';
     }
@@ -360,6 +365,11 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   }
 
   getDiasRestantesClass(licencia: Licencia): string {
+    // Si está inactivo, usar color gris
+    if (licencia.estado === '0' || !licencia.activo) {
+      return 'dias-inactivo';
+    }
+
     if (!licencia.tiempoRestante || licencia.vencido) return 'dias-vencido';
 
     const totalHoras = licencia.horasRestantes || 0;

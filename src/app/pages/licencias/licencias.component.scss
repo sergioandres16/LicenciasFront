@@ -133,6 +133,12 @@
   font-weight: 600;
 }
 
+.dias-inactivo {
+  color: #6c757d;
+  font-weight: 500;
+  font-style: italic;
+}
+
 // Dialog
 ::ng-deep {
   .mat-mdc-dialog-container {
