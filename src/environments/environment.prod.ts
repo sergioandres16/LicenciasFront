@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/api/v1'
+  apiBaseUrl: 'http://110.238.64.52:8082/LicenciasService/api/v1'
 };
