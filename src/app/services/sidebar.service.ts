@@ -58,6 +58,11 @@ export class SidebarService {
             title: 'Gestionar Licencias',
             icon: 'assets/img/icon_licencias.gif',
             url: 'licencias'
+          },
+          {
+            title: 'Gestionar Proyectos',
+            icon: 'assets/img/icon_proyectos.gif',
+            url: 'proyectos'
           }
         ]
       },

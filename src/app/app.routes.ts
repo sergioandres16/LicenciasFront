@@ -7,6 +7,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { LayoutComponent } from './layout/layout.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LicenciasComponent } from './pages/licencias/licencias.component';
+import { ProyectosComponent } from './pages/proyectos/proyectos.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -30,6 +31,10 @@ export const routes: Routes = [
       {
         path: 'licencias',
         component: LicenciasComponent
+      },
+      {
+        path: 'proyectos',
+        component: ProyectosComponent
       }
     ]
   },

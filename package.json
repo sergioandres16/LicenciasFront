@@ -36,6 +36,7 @@
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.15.10",
     "tslib": "^2.3.0",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^18.18.0",
+    "@types/xlsx": "^0.0.35",
     "jasmine-core": "~5.5.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

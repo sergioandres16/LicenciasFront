@@ -1,0 +1,354 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-content">
+            <div>
+              <h1 class="titulo">Gestión de Proyectos</h1>
+              <p class="subtitulo">Administre los proyectos y sus alertas de vencimiento</p>
+            </div>
+            <div class="header-actions">
+              <button mat-raised-button color="primary" (click)="openDialog()" class="me-2">
+                <mat-icon>add</mat-icon>
+                Nuevo Proyecto
+              </button>
+              <button mat-raised-button color="accent" (click)="fileInput.click()" class="me-2">
+                <mat-icon>upload_file</mat-icon>
+                Cargar Excel
+              </button>
+              <input #fileInput type="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" (change)="onFileSelected($event)" style="display: none;">
+              <button mat-raised-button color="primary" (click)="descargarPlantilla()">
+                <mat-icon>download</mat-icon>
+                Plantilla
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Archivo seleccionado y botón guardar -->
+          <div *ngIf="selectedFile" class="file-upload-section">
+            <div class="file-info">
+              <mat-icon>description</mat-icon>
+              <span>{{ selectedFile.name }}</span>
+              <button mat-icon-button (click)="selectedFile = null; fileInput.value = ''">
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+            <button mat-raised-button color="primary" (click)="cargarExcel()" [disabled]="isUploading">
+              <mat-spinner *ngIf="isUploading" diameter="20" class="me-2"></mat-spinner>
+              <mat-icon *ngIf="!isUploading">save</mat-icon>
+              {{ isUploading ? 'Cargando...' : 'Guardar Excel' }}
+            </button>
+          </div>
+
+          <!-- Búsqueda -->
+          <div class="search-section">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por ID Producto</mat-label>
+              <input matInput [(ngModel)]="searchIdProducto" (keyup.enter)="buscar()">
+              <mat-icon matSuffix>inventory_2</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por Producto</mat-label>
+              <input matInput [(ngModel)]="searchProducto" (keyup.enter)="buscar()">
+              <mat-icon matSuffix>shopping_bag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por Correo</mat-label>
+              <input matInput [(ngModel)]="searchCorreo" (keyup.enter)="buscar()"
+                     placeholder="Busca en los 3 correos">
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-hint>Busca en vendedor 1, 2 y jefe</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="vigencia-filter">
+              <mat-label>Vigencia restante</mat-label>
+              <mat-select [(ngModel)]="searchVigenciaMin" (selectionChange)="buscar()">
+                <mat-option *ngFor="let opcion of vigenciaFiltroOpciones" [value]="opcion.value">
+                  {{opcion.label}}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>event</mat-icon>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="buscar()" class="search-btn">
+              <mat-icon>search</mat-icon>
+              Buscar
+            </button>
+
+            <button mat-button (click)="limpiarBusqueda()">
+              <mat-icon>clear</mat-icon>
+              Limpiar
+            </button>
+          </div>
+
+          <!-- Acciones adicionales -->
+          <div class="additional-actions">
+            <button mat-stroked-button color="warn" (click)="enviarAlertas()">
+              <mat-icon>notification_important</mat-icon>
+              Enviar Alertas Ahora
+            </button>
+          </div>
+
+          <!-- Tabla -->
+          <div class="table-container">
+            <table mat-table [dataSource]="proyectos" class="proyectos-table">
+
+              <!-- ID Producto Column -->
+              <ng-container matColumnDef="idProducto">
+                <th mat-header-cell *matHeaderCellDef> ID Producto </th>
+                <td mat-cell *matCellDef="let proyecto">
+                  <code>{{proyecto.idProducto}}</code>
+                </td>
+              </ng-container>
+
+              <!-- Producto Column -->
+              <ng-container matColumnDef="producto">
+                <th mat-header-cell *matHeaderCellDef> Producto </th>
+                <td mat-cell *matCellDef="let proyecto"> {{proyecto.producto}} </td>
+              </ng-container>
+
+              <!-- Fecha Inicio Column -->
+              <ng-container matColumnDef="fechaInicio">
+                <th mat-header-cell *matHeaderCellDef> Fecha Inicio </th>
+                <td mat-cell *matCellDef="let proyecto">
+                  {{formatFecha(proyecto.fechaInicio)}}
+                </td>
+              </ng-container>
+
+              <!-- Vigencia Column -->
+              <ng-container matColumnDef="vigencia">
+                <th mat-header-cell *matHeaderCellDef> Vigencia </th>
+                <td mat-cell *matCellDef="let proyecto">
+                  {{proyecto.vigencia}}
+                </td>
+              </ng-container>
+
+              <!-- Vigencia Restante Column -->
+              <ng-container matColumnDef="vigenciaRestante">
+                <th mat-header-cell *matHeaderCellDef> Vigencia Restante </th>
+                <td mat-cell *matCellDef="let proyecto">
+                  <span [ngClass]="getVigenciaRestanteClass(proyecto)">
+                    {{getVigenciaRestanteInfo(proyecto)}}
+                  </span>
+                </td>
+              </ng-container>
+
+              <!-- Correos Column -->
+              <ng-container matColumnDef="correos">
+                <th mat-header-cell *matHeaderCellDef> Correos </th>
+                <td mat-cell *matCellDef="let proyecto" class="correos-cell">
+                  <div class="correos-container">
+                    <div class="correo-principal"
+                         [matTooltip]="'Vendedor 1: ' + proyecto.correoVendedor1"
+                         matTooltipPosition="above">
+                      <mat-icon class="email-icon">email</mat-icon>
+                      <span class="correo-text">{{getCorreosPrincipales(proyecto)}}</span>
+                    </div>
+                    <button mat-icon-button
+                            *ngIf="getCorreosAdicionales(proyecto) > 0"
+                            [matMenuTriggerFor]="correosMenu"
+                            class="correos-more">
+                      <mat-icon>more_vert</mat-icon>
+                      <span class="badge">+{{getCorreosAdicionales(proyecto)}}</span>
+                    </button>
+
+                    <mat-menu #correosMenu="matMenu">
+                      <div class="correos-menu-content">
+                        <div class="correo-item">
+                          <strong>Vendedor 1:</strong>
+                          <span>{{proyecto.correoVendedor1}}</span>
+                        </div>
+                        <div class="correo-item" *ngIf="proyecto.correoVendedor2">
+                          <strong>Vendedor 2:</strong>
+                          <span>{{proyecto.correoVendedor2}}</span>
+                        </div>
+                        <div class="correo-item" *ngIf="proyecto.correoJefeVendedor">
+                          <strong>Jefe Vendedor:</strong>
+                          <span>{{proyecto.correoJefeVendedor}}</span>
+                        </div>
+                      </div>
+                    </mat-menu>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Estado Column -->
+              <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef> Estado </th>
+                <td mat-cell *matCellDef="let proyecto">
+                  <mat-chip [ngClass]="getEstadoClass(proyecto)">
+                    {{getEstadoLabel(proyecto)}}
+                    <mat-icon *ngIf="proyecto.alerta30Enviada || proyecto.alerta60Enviada"
+                              class="alert-icon"
+                              matTooltip="Alertas enviadas">
+                      notifications_active
+                    </mat-icon>
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Acciones Column -->
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                <td mat-cell *matCellDef="let proyecto">
+                  <button mat-icon-button color="primary"
+                          (click)="openDialog(proyecto)"
+                          matTooltip="Editar">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn"
+                          (click)="deleteProyecto(proyecto)"
+                          matTooltip="Eliminar">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+              <!-- Row shown when there is no data -->
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" colspan="8" style="text-align: center; padding: 20px;">
+                  No se encontraron proyectos
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Paginador -->
+          <mat-paginator [length]="totalElements"
+                         [pageSize]="pageSize"
+                         [pageSizeOptions]="pageSizeOptions"
+                         [pageIndex]="currentPage"
+                         (page)="onPageChange($event)"
+                         showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Template -->
+<ng-template #proyectoDialog>
+  <h2 mat-dialog-title>{{ isEditing ? 'Editar Proyecto' : 'Nuevo Proyecto' }}</h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="proyectoForm">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>ID Producto</mat-label>
+          <input matInput formControlName="idProducto" placeholder="PROD-001">
+          <mat-error *ngIf="proyectoForm.get('idProducto')?.hasError('required')">
+            El ID del producto es obligatorio
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Producto</mat-label>
+          <input matInput formControlName="producto" placeholder="Nombre del producto">
+          <mat-error *ngIf="proyectoForm.get('producto')?.hasError('required')">
+            El nombre del producto es obligatorio
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Fecha de Inicio</mat-label>
+          <input matInput [matDatepicker]="picker" formControlName="fechaInicio">
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-error *ngIf="proyectoForm.get('fechaInicio')?.hasError('required')">
+            La fecha de inicio es obligatoria
+          </mat-error>
+        </mat-form-field>
+
+        <div class="vigencia-group">
+          <mat-form-field appearance="outline" class="vigencia-valor">
+            <mat-label>Vigencia</mat-label>
+            <mat-select formControlName="vigenciaValor">
+              <mat-option *ngFor="let valor of vigenciaValores" [value]="valor">
+                {{valor}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="vigencia-unidad">
+            <mat-label>Unidad</mat-label>
+            <mat-select formControlName="vigenciaUnidad">
+              <mat-option *ngFor="let unidad of vigenciaUnidades" [value]="unidad.value">
+                {{unidad.label}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo Vendedor 1</mat-label>
+          <input matInput formControlName="correoVendedor1"
+                 placeholder="vendedor1@empresa.com"
+                 type="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="proyectoForm.get('correoVendedor1')?.hasError('required')">
+            El correo del vendedor 1 es obligatorio
+          </mat-error>
+          <mat-error *ngIf="proyectoForm.get('correoVendedor1')?.hasError('email')">
+            Ingrese un correo válido
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Correo Vendedor 2 (Opcional)</mat-label>
+          <input matInput formControlName="correoVendedor2"
+                 placeholder="vendedor2@empresa.com"
+                 type="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="proyectoForm.get('correoVendedor2')?.hasError('email')">
+            Ingrese un correo válido
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Correo Jefe Vendedor (Opcional)</mat-label>
+          <input matInput formControlName="correoJefeVendedor"
+                 placeholder="jefe@empresa.com"
+                 type="email">
+          <mat-icon matSuffix>email</mat-icon>
+          <mat-error *ngIf="proyectoForm.get('correoJefeVendedor')?.hasError('email')">
+            Ingrese un correo válido
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+
+    <!-- Información sobre el formato del Excel -->
+    <div class="excel-info" *ngIf="!isEditing">
+      <mat-icon>info</mat-icon>
+      <p>
+        <strong>Formato del Excel:</strong><br>
+        Las columnas deben ser: idProducto | Producto | fechaInicio | vigencia | vigenciaRestante | correoVendedor1 | correoVendedor2 | correoJefeVendedor
+      </p>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">Cancelar</button>
+    <button mat-raised-button
+            color="primary"
+            (click)="onSubmit()"
+            [disabled]="proyectoForm.invalid">
+      {{ isEditing ? 'Actualizar' : 'Crear' }}
+    </button>
+  </mat-dialog-actions>
+</ng-template>
