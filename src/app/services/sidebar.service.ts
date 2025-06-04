@@ -56,12 +56,12 @@ export class SidebarService {
         submenus: [
           {
             title: 'Gestionar Licencias',
-            icon: 'assets/img/icon_licencias.gif',
+            icon: 'assets/img/tarjeta-de-membresia.png',
             url: 'licencias'
           },
           {
             title: 'Gestionar Proyectos',
-            icon: 'assets/img/icon_proyectos.gif',
+            icon: 'assets/img/project-management.png',
             url: 'proyectos'
           }
         ]
