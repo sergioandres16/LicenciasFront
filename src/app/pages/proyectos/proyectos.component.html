@@ -65,14 +65,18 @@
               <mat-hint>Busca en vendedor 1, 2 y jefe</mat-hint>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="vigencia-filter">
-              <mat-label>Vigencia restante</mat-label>
-              <mat-select [(ngModel)]="searchVigenciaMin" (selectionChange)="buscar()">
-                <mat-option *ngFor="let opcion of vigenciaFiltroOpciones" [value]="opcion.value">
-                  {{opcion.label}}
+            <mat-form-field appearance="outline" class="estado-filter">
+              <mat-label>Estado</mat-label>
+              <mat-select [(ngModel)]="searchEstado" (selectionChange)="buscar()">
+                <mat-option value="">Todos los estados</mat-option>
+                <mat-option *ngFor="let estado of estadoOpciones" [value]="estado.value">
+                  <span class="estado-option">
+                    <span class="estado-indicator" [ngClass]="estado.class"></span>
+                    {{estado.label}}
+                  </span>
                 </mat-option>
               </mat-select>
-              <mat-icon matSuffix>event</mat-icon>
+              <mat-icon matSuffix>flag</mat-icon>
             </mat-form-field>
 
             <button mat-raised-button color="primary" (click)="buscar()" class="search-btn">

@@ -136,6 +136,30 @@ export class ProyectoService {
     return this.http.get<PageResponse<Proyecto>>(`${this.apiUrl}/search`, { params });
   }
 
+  searchProyectosConEstado(idProducto?: string, producto?: string, correo?: string, estado?: string, page: number = 0, size: number = 10): Observable<PageResponse<Proyecto>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (idProducto) {
+      params = params.set('idProducto', idProducto);
+    }
+
+    if (producto) {
+      params = params.set('producto', producto);
+    }
+
+    if (correo) {
+      params = params.set('correo', correo);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    return this.http.get<PageResponse<Proyecto>>(`${this.apiUrl}/search-by-estado`, { params });
+  }
+
   /**
    * Carga proyectos desde un archivo Excel
    */

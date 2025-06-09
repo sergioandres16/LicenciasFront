@@ -66,15 +66,16 @@ export class ProyectosComponent implements OnInit, OnDestroy {
   searchIdProducto = '';
   searchProducto = '';
   searchCorreo = '';
-  searchVigenciaMin = '30';
+  searchEstado = '';
 
-  // Opciones de filtro de vigencia
-  vigenciaFiltroOpciones = [
-    { value: '30', label: '>= 30 días' },
-    { value: '60', label: '>= 60 días' },
-    { value: '90', label: '>= 90 días' },
-    { value: '180', label: '>= 6 meses' },
-    { value: '365', label: '>= 1 año' }
+// Opciones de estado para el filtro
+  estadoOpciones = [
+    { value: 'ACTIVO', label: 'Activo', class: 'estado-activo' },
+    { value: 'PROXIMO_VENCER', label: 'Próximo a Vencer', class: 'estado-advertencia' },
+    { value: 'CRITICO', label: 'Crítico', class: 'estado-critico' },
+    { value: 'VENCIDO', label: 'Vencido', class: 'estado-vencido' },
+    { value: 'INACTIVO', label: 'Inactivo', class: 'estado-inactivo' },
+    { value: 'SIN_DATOS', label: 'Sin Datos', class: 'estado-inactivo' }
   ];
 
   // Formulario
@@ -157,20 +158,33 @@ export class ProyectosComponent implements OnInit, OnDestroy {
   }
 
   buscar(): void {
-    const vigenciaMin = this.searchVigenciaMin ? parseInt(this.searchVigenciaMin) : undefined;
+    // Preparar parámetros de búsqueda
+    const params: any = {
+      page: this.currentPage,
+      size: this.pageSize
+    };
 
-    console.log('Buscando con filtros:', {
-      idProducto: this.searchIdProducto,
-      producto: this.searchProducto,
-      correo: this.searchCorreo,
-      vigenciaMin: vigenciaMin
-    });
+    if (this.searchIdProducto) {
+      params.idProducto = this.searchIdProducto;
+    }
+    if (this.searchProducto) {
+      params.producto = this.searchProducto;
+    }
+    if (this.searchCorreo) {
+      params.correo = this.searchCorreo;
+    }
+    if (this.searchEstado) {
+      params.estado = this.searchEstado;
+    }
 
-    this.proyectoService.searchProyectos(
+    console.log('Buscando con filtros:', params);
+
+    // Llamar al servicio con búsqueda avanzada por estado
+    this.proyectoService.searchProyectosConEstado(
       this.searchIdProducto,
       this.searchProducto,
       this.searchCorreo,
-      vigenciaMin,
+      this.searchEstado,
       this.currentPage,
       this.pageSize
     ).subscribe({
@@ -190,7 +204,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
     this.searchIdProducto = '';
     this.searchProducto = '';
     this.searchCorreo = '';
-    this.searchVigenciaMin = '30';
+    this.searchEstado = '';
     this.loadProyectos();
   }
 
@@ -480,6 +494,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
       case 'CRÍTICO': return 'estado-critico';
       case 'VENCIDO': return 'estado-vencido';
       case 'INACTIVO': return 'estado-inactivo';
+      case 'SIN DATOS': return 'estado-inactivo';
       default: return 'estado-inactivo';
     }
   }
