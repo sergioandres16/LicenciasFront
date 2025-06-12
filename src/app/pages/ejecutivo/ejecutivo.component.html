@@ -1,0 +1,213 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-content">
+            <div>
+              <h1 class="titulo">Ejecutivos</h1>
+              <p class="subtitulo">Administre los ejecutivos del sistema</p>
+            </div>
+            <button mat-raised-button color="primary" (click)="openDialog()">
+              <mat-icon>add</mat-icon>
+              Nuevo Ejecutivo
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Búsqueda -->
+          <div class="search-section">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por nombre</mat-label>
+              <input matInput [(ngModel)]="searchNombre" (keyup.enter)="buscar()">
+              <mat-icon matSuffix>person_search</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por abreviatura</mat-label>
+              <input matInput [(ngModel)]="searchAbreviatura" (keyup.enter)="buscar()">
+              <mat-icon matSuffix>short_text</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Estado</mat-label>
+              <mat-select [(ngModel)]="searchEstado" (selectionChange)="buscar()">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="1">Activo</mat-option>
+                <mat-option value="0">Inactivo</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>flag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Fecha inicio</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="searchFechaInicio" placeholder="Desde">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Fecha fin</mat-label>
+              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="searchFechaFin" placeholder="Hasta">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="buscar()" class="search-btn">
+              <mat-icon>search</mat-icon>
+              Buscar
+            </button>
+
+            <button mat-button (click)="limpiarBusqueda()">
+              <mat-icon>clear</mat-icon>
+              Limpiar
+            </button>
+          </div>
+
+          <!-- Tabla -->
+          <div class="table-container">
+            <table mat-table [dataSource]="ejecutivos" class="administracion-table">
+
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let ejecutivo"> {{ejecutivo.id}} </td>
+              </ng-container>
+
+              <!-- Nombre Ejecutivo Column -->
+              <ng-container matColumnDef="nombreEjecutivo">
+                <th mat-header-cell *matHeaderCellDef> Nombre Ejecutivo </th>
+                <td mat-cell *matCellDef="let ejecutivo"> {{ejecutivo.nombreEjecutivo}} </td>
+              </ng-container>
+
+              <!-- Abreviatura Column -->
+              <ng-container matColumnDef="abreviatura">
+                <th mat-header-cell *matHeaderCellDef> Abreviatura </th>
+                <td mat-cell *matCellDef="let ejecutivo">
+                  <mat-chip class="abreviatura-chip">
+                    {{ejecutivo.abreviatura}}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Estado Column -->
+              <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef> Estado </th>
+                <td mat-cell *matCellDef="let ejecutivo">
+                  <mat-chip [ngClass]="getEstadoClass(ejecutivo.estado)">
+                    {{getEstadoLabel(ejecutivo.estado)}}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Fecha Creación Column -->
+              <ng-container matColumnDef="fechaCreacion">
+                <th mat-header-cell *matHeaderCellDef> Fecha Creación </th>
+                <td mat-cell *matCellDef="let ejecutivo">
+                  {{formatDate(ejecutivo.fechaCreacion)}}
+                </td>
+              </ng-container>
+
+              <!-- Acciones Column -->
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                <td mat-cell *matCellDef="let ejecutivo">
+                  <button mat-icon-button color="primary"
+                          (click)="openDialog(ejecutivo)"
+                          matTooltip="Editar">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn"
+                          (click)="deleteEjecutivo(ejecutivo)"
+                          matTooltip="Eliminar">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+              <!-- Row shown when there is no data -->
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" colspan="6" style="text-align: center; padding: 20px;">
+                  No se encontraron ejecutivos
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Paginador -->
+          <mat-paginator [length]="totalElements"
+                         [pageSize]="pageSize"
+                         [pageSizeOptions]="pageSizeOptions"
+                         [pageIndex]="currentPage"
+                         (page)="onPageChange($event)"
+                         showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Template -->
+<ng-template #ejecutivoDialog>
+  <h2 mat-dialog-title>{{ isEditing ? 'Editar Ejecutivo' : 'Nuevo Ejecutivo' }}</h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="ejecutivoForm">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre del Ejecutivo</mat-label>
+          <input matInput formControlName="nombreEjecutivo"
+                 placeholder="Ingrese el nombre del ejecutivo">
+          <mat-error *ngIf="ejecutivoForm.get('nombreEjecutivo')?.hasError('required')">
+            El nombre del ejecutivo es obligatorio
+          </mat-error>
+          <mat-error *ngIf="ejecutivoForm.get('nombreEjecutivo')?.hasError('maxlength')">
+            El nombre no puede exceder 255 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Abreviatura</mat-label>
+          <input matInput formControlName="abreviatura"
+                 placeholder="Ingrese la abreviatura"
+                 style="text-transform: uppercase;">
+          <mat-hint>Se guardará en mayúsculas</mat-hint>
+          <mat-error *ngIf="ejecutivoForm.get('abreviatura')?.hasError('required')">
+            La abreviatura es obligatoria
+          </mat-error>
+          <mat-error *ngIf="ejecutivoForm.get('abreviatura')?.hasError('maxlength')">
+            La abreviatura no puede exceder 50 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Estado</mat-label>
+          <mat-select formControlName="estado">
+            <mat-option value="1">Activo</mat-option>
+            <mat-option value="0">Inactivo</mat-option>
+          </mat-select>
+          <mat-error *ngIf="ejecutivoForm.get('estado')?.hasError('required')">
+            El estado es obligatorio
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">Cancelar</button>
+    <button mat-raised-button
+            color="primary"
+            (click)="onSubmit()"
+            [disabled]="ejecutivoForm.invalid">
+      {{ isEditing ? 'Actualizar' : 'Crear' }}
+    </button>
+  </mat-dialog-actions>
+</ng-template>

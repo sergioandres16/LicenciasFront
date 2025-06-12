@@ -8,6 +8,8 @@ import { LayoutComponent } from './layout/layout.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LicenciasComponent } from './pages/licencias/licencias.component';
 import { ProyectosComponent } from './pages/proyectos/proyectos.component';
+import { TipoCertificadoComponent } from './pages/tipo-certificado/tipo-certificado.component';
+import { EjecutivoComponent } from './pages/ejecutivo/ejecutivo.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -35,6 +37,14 @@ export const routes: Routes = [
       {
         path: 'proyectos',
         component: ProyectosComponent
+      },
+      {
+        path: 'tipo-certificado',
+        component: TipoCertificadoComponent
+      },
+      {
+        path: 'ejecutivo',
+        component: EjecutivoComponent
       }
     ]
   },

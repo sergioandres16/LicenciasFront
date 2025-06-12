@@ -1,0 +1,182 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="header-content">
+            <div>
+              <h1 class="titulo">Tipo de Certificado</h1>
+              <p class="subtitulo">Administre los tipos de certificado del sistema</p>
+            </div>
+            <button mat-raised-button color="primary" (click)="openDialog()">
+              <mat-icon>add</mat-icon>
+              Nuevo Tipo Certificado
+            </button>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Búsqueda -->
+          <div class="search-section">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por nombre</mat-label>
+              <input matInput [(ngModel)]="searchNombre" (keyup.enter)="buscar()">
+              <mat-icon matSuffix>description</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Buscar por abreviatura</mat-label>
+              <input matInput [(ngModel)]="searchAbreviatura" (keyup.enter)="buscar()">
+              <mat-icon matSuffix>short_text</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Fecha inicio</mat-label>
+              <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="searchFechaInicio" placeholder="Desde">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+              <mat-datepicker #pickerInicio></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Fecha fin</mat-label>
+              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="searchFechaFin" placeholder="Hasta">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+              <mat-datepicker #pickerFin></mat-datepicker>
+            </mat-form-field>
+
+            <button mat-raised-button color="primary" (click)="buscar()" class="search-btn">
+              <mat-icon>search</mat-icon>
+              Buscar
+            </button>
+
+            <button mat-button (click)="limpiarBusqueda()">
+              <mat-icon>clear</mat-icon>
+              Limpiar
+            </button>
+          </div>
+
+          <!-- Tabla -->
+          <div class="table-container">
+            <table mat-table [dataSource]="tiposCertificado" class="administracion-table">
+
+              <!-- ID Column -->
+              <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> ID </th>
+                <td mat-cell *matCellDef="let tipoCertificado"> {{tipoCertificado.id}} </td>
+              </ng-container>
+
+              <!-- Nombre Certificado Column -->
+              <ng-container matColumnDef="nombreCertificado">
+                <th mat-header-cell *matHeaderCellDef> Nombre Certificado </th>
+                <td mat-cell *matCellDef="let tipoCertificado"> {{tipoCertificado.nombreCertificado}} </td>
+              </ng-container>
+
+              <!-- Abreviatura Column -->
+              <ng-container matColumnDef="abreviatura">
+                <th mat-header-cell *matHeaderCellDef> Abreviatura </th>
+                <td mat-cell *matCellDef="let tipoCertificado">
+                  <mat-chip class="abreviatura-chip">
+                    {{tipoCertificado.abreviatura}}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Fecha Creación Column -->
+              <ng-container matColumnDef="fechaCreacion">
+                <th mat-header-cell *matHeaderCellDef> Fecha Creación </th>
+                <td mat-cell *matCellDef="let tipoCertificado">
+                  {{formatDate(tipoCertificado.fechaCreacion)}}
+                </td>
+              </ng-container>
+
+              <!-- Acciones Column -->
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                <td mat-cell *matCellDef="let tipoCertificado">
+                  <button mat-icon-button color="primary"
+                          (click)="openDialog(tipoCertificado)"
+                          matTooltip="Editar">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn"
+                          (click)="deleteTipoCertificado(tipoCertificado)"
+                          matTooltip="Eliminar">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+              <!-- Row shown when there is no data -->
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" colspan="5" style="text-align: center; padding: 20px;">
+                  No se encontraron tipos de certificado
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Paginador -->
+          <mat-paginator [length]="totalElements"
+                         [pageSize]="pageSize"
+                         [pageSizeOptions]="pageSizeOptions"
+                         [pageIndex]="currentPage"
+                         (page)="onPageChange($event)"
+                         showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Template -->
+<ng-template #tipoCertificadoDialog>
+  <h2 mat-dialog-title>{{ isEditing ? 'Editar Tipo Certificado' : 'Nuevo Tipo Certificado' }}</h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="tipoCertificadoForm">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre del Certificado</mat-label>
+          <input matInput formControlName="nombreCertificado"
+                 placeholder="Ingrese el nombre del certificado">
+          <mat-error *ngIf="tipoCertificadoForm.get('nombreCertificado')?.hasError('required')">
+            El nombre del certificado es obligatorio
+          </mat-error>
+          <mat-error *ngIf="tipoCertificadoForm.get('nombreCertificado')?.hasError('maxlength')">
+            El nombre no puede exceder 255 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Abreviatura</mat-label>
+          <input matInput formControlName="abreviatura"
+                 placeholder="Ingrese la abreviatura"
+                 style="text-transform: uppercase;">
+          <mat-hint>Se guardará en mayúsculas</mat-hint>
+          <mat-error *ngIf="tipoCertificadoForm.get('abreviatura')?.hasError('required')">
+            La abreviatura es obligatoria
+          </mat-error>
+          <mat-error *ngIf="tipoCertificadoForm.get('abreviatura')?.hasError('maxlength')">
+            La abreviatura no puede exceder 50 caracteres
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="closeDialog()">Cancelar</button>
+    <button mat-raised-button
+            color="primary"
+            (click)="onSubmit()"
+            [disabled]="tipoCertificadoForm.invalid">
+      {{ isEditing ? 'Actualizar' : 'Crear' }}
+    </button>
+  </mat-dialog-actions>
+</ng-template>

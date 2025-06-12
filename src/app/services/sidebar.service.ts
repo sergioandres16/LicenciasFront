@@ -46,6 +46,27 @@ export class SidebarService {
         ]
       },
       {
+        title: 'Administración',
+        icon: 'assets/img/config-admin.gif',
+        active: false,
+        type: 'dropdown',
+        badge: {
+          class: 'badge-info'
+        },
+        submenus: [
+          {
+            title: 'Tipo Certificado',
+            icon: 'assets/img/certificate-icon.png',
+            url: 'tipo-certificado'
+          },
+          {
+            title: 'Ejecutivo',
+            icon: 'assets/img/executive-icon.png',
+            url: 'ejecutivo'
+          }
+        ]
+      },
+      {
         title: 'Gestión',
         icon: 'assets/img/administracion.gif',
         active: false,
