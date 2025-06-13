@@ -10,6 +10,7 @@ import { LicenciasComponent } from './pages/licencias/licencias.component';
 import { ProyectosComponent } from './pages/proyectos/proyectos.component';
 import { TipoCertificadoComponent } from './pages/tipo-certificado/tipo-certificado.component';
 import { EjecutivoComponent } from './pages/ejecutivo/ejecutivo.component';
+import {CertificadoComponent} from './pages/certificado/certificado.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -37,6 +38,10 @@ export const routes: Routes = [
       {
         path: 'proyectos',
         component: ProyectosComponent
+      },
+      {
+        path: 'certificados',
+        component: CertificadoComponent
       },
       {
         path: 'tipo-certificado',

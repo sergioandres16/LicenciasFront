@@ -1,0 +1,379 @@
+<div class="certificado-container">
+  <div class="page-header">
+    <h1>Gestión de Certificados</h1>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="openDialog()">
+        <mat-icon>add</mat-icon>
+        Nuevo Certificado
+      </button>
+      <button mat-raised-button (click)="descargarPlantilla()">
+        <mat-icon>download</mat-icon>
+        Descargar Plantilla
+      </button>
+      <input #fileInput type="file" accept=".xlsx,.xls" style="display: none" (change)="onFileSelected($event)">
+      <button mat-raised-button (click)="fileInput.click()" [disabled]="isUploading">
+        <mat-icon>upload</mat-icon>
+        {{isUploading ? 'Cargando...' : 'Cargar Excel'}}
+      </button>
+      <button mat-raised-button color="warn" (click)="enviarAlertas()">
+        <mat-icon>send</mat-icon>
+        Enviar Alertas
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <mat-card class="search-card">
+    <mat-card-content>
+      <div class="search-filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar por Ejecutivo</mat-label>
+          <mat-select [(ngModel)]="searchEjecutivoId">
+            <mat-option>-- Todos --</mat-option>
+            <mat-option *ngFor="let ejecutivo of ejecutivos" [value]="ejecutivo.id">
+              {{ejecutivo.nombreEjecutivo}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar por Cliente</mat-label>
+          <input matInput [(ngModel)]="searchRazonSocial" placeholder="Razón social">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar por Nombres</mat-label>
+          <input matInput [(ngModel)]="searchNombres" placeholder="Nombres o apellidos">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Buscar por Estado</mat-label>
+          <mat-select [(ngModel)]="searchEstado">
+            <mat-option>-- Todos --</mat-option>
+            <mat-option *ngFor="let estado of estadoOpciones" [value]="estado.value">
+              <span [class]="estado.class">{{estado.label}}</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <div class="search-actions">
+          <button mat-raised-button color="primary" (click)="buscar()">
+            <mat-icon>search</mat-icon>
+            Buscar
+          </button>
+          <button mat-button (click)="limpiarBusqueda()">
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabla de certificados -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="certificados" class="certificados-table">
+
+          <!-- Columna Número Documento -->
+          <ng-container matColumnDef="numeroDocumento">
+            <th mat-header-cell *matHeaderCellDef> N° Documento </th>
+            <td mat-cell *matCellDef="let certificado"> {{certificado.numeroDocumento}} </td>
+          </ng-container>
+
+          <!-- Columna Nombre Completo -->
+          <ng-container matColumnDef="nombreCompleto">
+            <th mat-header-cell *matHeaderCellDef> Titular </th>
+            <td mat-cell *matCellDef="let certificado"> {{getNombreCompleto(certificado)}} </td>
+          </ng-container>
+
+          <!-- Columna Tipo Certificado -->
+          <ng-container matColumnDef="tipoCertificado">
+            <th mat-header-cell *matHeaderCellDef> Tipo </th>
+            <td mat-cell *matCellDef="let certificado">
+              <mat-chip [color]="certificado.tipoCertificado === 'PERSONA JURIDICA' ? 'primary' : 'accent'" selected>
+                {{certificado.tipoCertificado}}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Columna Ejecutivo -->
+          <ng-container matColumnDef="ejecutivo">
+            <th mat-header-cell *matHeaderCellDef> Ejecutivo </th>
+            <td mat-cell *matCellDef="let certificado"> {{certificado.ejecutivoNombre || 'N/A'}} </td>
+          </ng-container>
+
+          <!-- Columna Razón Social -->
+          <ng-container matColumnDef="razonSocial">
+            <th mat-header-cell *matHeaderCellDef> Cliente/Empresa </th>
+            <td mat-cell *matCellDef="let certificado"> {{certificado.razonSocial || '-'}} </td>
+          </ng-container>
+
+          <!-- Columna Fecha Emisión -->
+          <ng-container matColumnDef="fechaEmision">
+            <th mat-header-cell *matHeaderCellDef> F. Emisión </th>
+            <td mat-cell *matCellDef="let certificado"> {{formatDate(certificado.fechaEmision)}} </td>
+          </ng-container>
+
+          <!-- Columna Fecha Vencimiento -->
+          <ng-container matColumnDef="fechaVencimiento">
+            <th mat-header-cell *matHeaderCellDef> F. Vencimiento </th>
+            <td mat-cell *matCellDef="let certificado"> {{formatDate(certificado.fechaVencimiento)}} </td>
+          </ng-container>
+
+          <!-- Columna Vigencia -->
+          <ng-container matColumnDef="vigenciaDias">
+            <th mat-header-cell *matHeaderCellDef> Vigencia </th>
+            <td mat-cell *matCellDef="let certificado">
+              <div class="vigencia-cell" [class]="getVigenciaClass(certificado)">
+                <mat-icon>schedule</mat-icon>
+                <span>{{getVigenciaInfo(certificado)}}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Columna Estado -->
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef> Estado </th>
+            <td mat-cell *matCellDef="let certificado">
+              <mat-chip [class]="getEstadoClass(certificado.estado)" selected>
+                {{getEstadoLabel(certificado.estado)}}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Columna Correos -->
+          <ng-container matColumnDef="correos">
+            <th mat-header-cell *matHeaderCellDef> Correos </th>
+            <td mat-cell *matCellDef="let certificado">
+              <button mat-icon-button
+                      *ngIf="hasCorreos(certificado)"
+                      [matTooltip]="getCorreosTooltip(certificado)"
+                      matTooltipPosition="above">
+                <mat-icon>email</mat-icon>
+              </button>
+              <span *ngIf="!hasCorreos(certificado)">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Acciones -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+            <td mat-cell *matCellDef="let certificado" class="actions-cell">
+              <button mat-icon-button color="primary"
+                      (click)="openDialog(certificado)"
+                      matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn"
+                      (click)="deleteCertificado(certificado)"
+                      matTooltip="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- Fila cuando no hay datos -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              No se encontraron certificados
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <mat-paginator [length]="totalElements"
+                     [pageSize]="pageSize"
+                     [pageSizeOptions]="pageSizeOptions"
+                     (page)="onPageChange($event)"
+                     showFirstLastButtons>
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Diálogo para crear/editar certificado -->
+<div class="dialog-overlay" *ngIf="showDialog" [class.active]="showDialog">
+  <div class="dialog-content">
+    <h2 mat-dialog-title>{{isEditing ? 'Editar' : 'Nuevo'}} Certificado</h2>
+
+    <form [formGroup]="certificadoForm" (ngSubmit)="onSubmit()">
+      <div mat-dialog-content>
+        <div class="form-grid">
+          <!-- Fechas -->
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de Emisión</mat-label>
+            <input matInput [matDatepicker]="emisionPicker" formControlName="fechaEmision" required>
+            <mat-datepicker-toggle matSuffix [for]="emisionPicker"></mat-datepicker-toggle>
+            <mat-datepicker #emisionPicker></mat-datepicker>
+            <mat-error *ngIf="certificadoForm.get('fechaEmision')?.hasError('required')">
+              La fecha de emisión es requerida
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fecha de Vencimiento</mat-label>
+            <input matInput [matDatepicker]="vencimientoPicker" formControlName="fechaVencimiento" required>
+            <mat-datepicker-toggle matSuffix [for]="vencimientoPicker"></mat-datepicker-toggle>
+            <mat-datepicker #vencimientoPicker></mat-datepicker>
+            <mat-error *ngIf="certificadoForm.get('fechaVencimiento')?.hasError('required')">
+              La fecha de vencimiento es requerida
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Ejecutivo y Tipo -->
+          <mat-form-field appearance="outline">
+            <mat-label>Ejecutivo</mat-label>
+            <mat-select formControlName="ejecutivoId" required>
+              <mat-option *ngFor="let ejecutivo of ejecutivos" [value]="ejecutivo.id">
+                {{ejecutivo.nombreEjecutivo}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="certificadoForm.get('ejecutivoId')?.hasError('required')">
+              El ejecutivo es requerido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de Certificado</mat-label>
+            <mat-select formControlName="tipoCertificado" required>
+              <mat-option *ngFor="let tipo of tiposCertificado" [value]="tipo.value">
+                {{tipo.label}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="certificadoForm.get('tipoCertificado')?.hasError('required')">
+              El tipo de certificado es requerido
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Datos personales -->
+          <mat-form-field appearance="outline">
+            <mat-label>Nombres</mat-label>
+            <input matInput formControlName="nombres" required>
+            <mat-error *ngIf="certificadoForm.get('nombres')?.hasError('required')">
+              Los nombres son requeridos
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Primer Apellido</mat-label>
+            <input matInput formControlName="primerApellido" required>
+            <mat-error *ngIf="certificadoForm.get('primerApellido')?.hasError('required')">
+              El primer apellido es requerido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Segundo Apellido</mat-label>
+            <input matInput formControlName="segundoApellido">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Número de Documento</mat-label>
+            <input matInput formControlName="numeroDocumento" required>
+            <mat-error *ngIf="certificadoForm.get('numeroDocumento')?.hasError('required')">
+              El número de documento es requerido
+            </mat-error>
+            <mat-error *ngIf="certificadoForm.get('numeroDocumento')?.hasError('pattern')">
+              El documento debe tener entre 8 y 20 dígitos
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Datos de empresa (solo para persona jurídica) -->
+          <ng-container *ngIf="certificadoForm.get('tipoCertificado')?.value === 'PERSONA JURIDICA'">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Razón Social</mat-label>
+              <input matInput formControlName="razonSocial">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Número RUC</mat-label>
+              <input matInput formControlName="numeroRuc">
+              <mat-error *ngIf="certificadoForm.get('numeroRuc')?.hasError('pattern')">
+                El RUC debe tener 11 dígitos
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Departamento</mat-label>
+              <input matInput formControlName="departamento">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Cargo</mat-label>
+              <input matInput formControlName="cargo">
+            </mat-form-field>
+          </ng-container>
+
+          <!-- Datos de contacto -->
+          <mat-form-field appearance="outline">
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput formControlName="correoElectronico" type="email">
+            <mat-error *ngIf="certificadoForm.get('correoElectronico')?.hasError('email')">
+              Ingrese un correo válido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Teléfono</mat-label>
+            <input matInput formControlName="telefono">
+            <mat-error *ngIf="certificadoForm.get('telefono')?.hasError('pattern')">
+              El teléfono debe tener entre 7 y 15 dígitos
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Dirección</mat-label>
+            <textarea matInput formControlName="direccion" rows="2"></textarea>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Código Postal</mat-label>
+            <input matInput formControlName="codigoPostal">
+            <mat-error *ngIf="certificadoForm.get('codigoPostal')?.hasError('pattern')">
+              El código postal debe tener 5 dígitos
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Correos de notificación -->
+          <div class="section-title full-width">Correos de Notificación</div>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Correo Ejecutivo 1</mat-label>
+            <input matInput formControlName="correoEjecutivo1" type="email">
+            <mat-error *ngIf="certificadoForm.get('correoEjecutivo1')?.hasError('email')">
+              Ingrese un correo válido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Correo Ejecutivo 2</mat-label>
+            <input matInput formControlName="correoEjecutivo2" type="email">
+            <mat-error *ngIf="certificadoForm.get('correoEjecutivo2')?.hasError('email')">
+              Ingrese un correo válido
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Correo Ejecutivo 3</mat-label>
+            <input matInput formControlName="correoEjecutivo3" type="email">
+            <mat-error *ngIf="certificadoForm.get('correoEjecutivo3')?.hasError('email')">
+              Ingrese un correo válido
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div mat-dialog-actions align="end">
+        <button mat-button type="button" (click)="closeDialog()">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="certificadoForm.invalid">
+          {{isEditing ? 'Actualizar' : 'Crear'}}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
