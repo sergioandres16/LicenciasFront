@@ -1,65 +1,75 @@
+// Variables de color - AQUÍ PUEDES CAMBIAR LOS COLORES
+$primary-color: #2c5aa0;  // Color principal azul original - cámbialo por el que quieras
+$primary-dark: #1e3a5f;   // Color más oscuro para degradados - cámbialo por uno más oscuro que el principal
+$background-light: #f8f9fa;
+$border-color: #e0e0e0;
+
+// 🎨 EJEMPLOS DE OTROS COLORES QUE PUEDES USAR:
+// Verde: $primary-color: #4caf50; $primary-dark: #2e7d32;
+// Morado: $primary-color: #9c27b0; $primary-dark: #6a1b9a;
+// Rojo: $primary-color: #f44336; $primary-dark: #c62828;
+// Naranja: $primary-color: #ff9800; $primary-dark: #f57c00;
+// Turquesa: $primary-color: #00bcd4; $primary-dark: #0097a7;
+// Rosa: $primary-color: #e91e63; $primary-dark: #ad1457;
+
+// Card principal
 .card {
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   border: none;
+  overflow: hidden;
 }
 
 .card-header {
-  background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%);
+  background-color: $primary-color; // Color sólido sin degradado
   color: white;
-  border-radius: 10px 10px 0 0 !important;
-  padding: 20px;
+  padding: 24px 30px;
 
   .header-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 15px;
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-
-      button {
-        margin-right: 10px;
-
-        &:last-child {
-          margin-right: 0;
-        }
-
-        mat-icon {
-          margin-right: 4px;
-        }
-      }
-    }
+    gap: 20px;
   }
-}
 
-.titulo {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin: 0;
-}
+  .titulo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
 
-.subtitulo {
-  margin: 5px 0 0 0;
-  opacity: 0.9;
-  font-size: 1rem;
+  .subtitulo {
+    margin: 8px 0 0 0;
+    opacity: 0.9;
+    font-size: 1rem;
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
 }
 
 .card-body {
   padding: 30px;
+  background-color: #fafbfc;
 }
 
 // Búsqueda
 .search-section {
   display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 30px;
   align-items: flex-start;
   flex-wrap: wrap;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 
   .search-field {
     flex: 1;
@@ -67,149 +77,476 @@
   }
 
   .search-btn {
-    margin-top: 5px;
-    margin-right: 10px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-}
-
-// Acciones adicionales
-.additional-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  justify-content: flex-end;
-
-  button {
-    margin-right: 10px;
-
-    &:last-child {
-      margin-right: 0;
-    }
+    margin-top: 8px;
+    min-width: 100px;
   }
 }
 
 // Tabla
 .table-container {
-  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   margin-bottom: 20px;
 }
 
 .certificados-table {
   width: 100%;
-  min-width: 1200px;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 
   th {
     font-weight: 600;
-    color: #2c5aa0;
-    background-color: #f5f5f5;
+    color: $primary-color;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid $border-color;
+    padding: 16px 12px !important;
+    font-size: 0.875rem;
   }
 
   td {
-    padding: 12px 8px;
+    padding: 16px 12px !important;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   tr:hover {
-    background-color: #f8f9fa;
+    background-color: rgba($primary-color, 0.04);
   }
 
-  .vigencia-cell {
+  // Celda de dirección con texto truncado
+  .direccion-cell {
+    display: block;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// Vigencia
+.vigencia-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.vigencia-ok {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.vigencia-precaucion {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #2196f3;
+}
+
+.vigencia-advertencia {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.vigencia-critica {
+  background-color: rgba(255, 87, 34, 0.1);
+  color: #ff5722;
+}
+
+.vigencia-vencida {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+// Estados
+.estado-vigente {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.estado-por-vencer {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.estado-vencido {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+// === ESTILOS DEL MODAL ===
+::ng-deep {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+    max-width: 85vw !important;
+    max-height: 85vh !important;
+    width: 800px !important;
+  }
+
+  .mat-mdc-dialog-surface {
+    border-radius: 16px !important;
+  }
+}
+
+// Header del modal
+.dialog-header {
+  background-color: $primary-color; // Color sólido sin degradado
+  color: white;
+  padding: 20px 24px;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+
+  .dialog-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-weight: 500;
+    gap: 12px;
+  }
+}
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
+// Contenido del modal
+.dialog-content {
+  padding: 0;
+  max-height: 65vh;
+  overflow-y: auto;
+  background: #fafbfc;
 
-    &.vigencia-ok {
-      color: #4caf50;
-      background-color: #e8f5e9;
-    }
-
-    &.vigencia-precaucion {
-      color: #2196f3;
-      background-color: #e3f2fd;
-    }
-
-    &.vigencia-advertencia {
-      color: #ff9800;
-      background-color: #fff3e0;
-    }
-
-    &.vigencia-critica {
-      color: #f44336;
-      background-color: #ffebee;
-    }
-
-    &.vigencia-vencida {
-      color: #9e9e9e;
-      background-color: #f5f5f5;
-    }
+  &::-webkit-scrollbar {
+    width: 6px;
   }
 
-  .actions-cell {
-    white-space: nowrap;
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
   }
 
-  mat-chip {
-    font-size: 12px;
-    height: 24px;
-    line-height: 24px;
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
 
-    &.estado-vigente {
-      background-color: #4caf50 !important;
-      color: white;
-    }
-
-    &.estado-por-vencer {
-      background-color: #ff9800 !important;
-      color: white;
-    }
-
-    &.estado-vencido {
-      background-color: #f44336 !important;
-      color: white;
+    &:hover {
+      background: #a8a8a8;
     }
   }
 }
 
-// Diálogo
-::ng-deep .mat-mdc-dialog-container {
-  .mdc-dialog__surface {
-    border-radius: 10px;
-  }
+// Contenedor del formulario
+.form-container {
+  padding: 24px;
+  background: white;
+  margin: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+// Filas del formulario
+.form-row {
+  display: flex;
   gap: 16px;
-  padding: 16px 0;
+  margin-bottom: 16px;
+  align-items: flex-start;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 
   .full-width {
-    grid-column: 1 / -1;
+    flex: 1;
+    width: 100%;
   }
 
+  mat-form-field {
+    flex: 1;
+  }
+}
+
+// Sección de correos
+.correos-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+
   .section-title {
+    font-size: 1rem;
     font-weight: 600;
-    color: #2c5aa0;
+    color: $primary-color;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '📧';
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Información del Excel
+.excel-info {
+  background-color: #e3f2fd; // Color sólido sin degradado
+  border: 1px solid #90caf9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+
+  mat-icon {
+    color: $primary-color;
+    margin-top: 2px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: #1565c0;
+    font-weight: 500;
+  }
+}
+
+// Acciones del modal
+.dialog-actions {
+  background: #f8f9fa;
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  button {
+    min-width: 100px;
+    font-weight: 500;
+  }
+}
+
+// Form field overrides
+::ng-deep {
+  .mat-mdc-form-field {
+    .mat-mdc-form-field-subscript-wrapper {
+      margin-top: 0.25rem !important;
+    }
+
+    .mdc-notched-outline {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: #d0d7de;
+        border-width: 1px;
+      }
+    }
+
+    &.mat-focused {
+      .mdc-notched-outline {
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: $primary-color !important;
+          border-width: 2px !important;
+        }
+      }
+    }
+
+    .mat-mdc-form-field-icon-suffix {
+      mat-icon {
+        color: #666;
+      }
+    }
+  }
+
+  // Chips personalizados
+  .mat-mdc-chip {
+    font-size: 0.75rem !important;
+    height: 28px !important;
+    border-radius: 14px !important;
+    font-weight: 500 !important;
+
+    .mat-mdc-chip-action-label {
+      padding: 0 12px !important;
+    }
+  }
+
+  // Paginación
+  .mat-mdc-paginator {
+    background-color: white !important;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  // Botones
+  .mat-mdc-raised-button {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    letter-spacing: 0.25px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+
+    &:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+    }
+  }
+
+  .mat-mdc-button {
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+  }
+
+  // Select dropdown
+  .mat-mdc-select-panel {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  // Datepicker
+  .mat-datepicker-popup {
+    .mat-calendar {
+      border-radius: 12px !important;
+    }
+  }
+
+  // Tooltip
+  .mat-mdc-tooltip {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    color: white !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+  }
+}
+
+// Responsive design
+@media (max-width: 1200px) {
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    .header-content {
+      flex-direction: column;
+      align-items: flex-start;
+      text-align: left;
+
+      .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  }
+
+  .search-section {
+    flex-direction: column;
+    padding: 16px;
+
+    .search-field {
+      width: 100%;
+    }
+
+    .search-btn {
+      margin-top: 0;
+      width: 100%;
+    }
+  }
+
+  .certificados-table {
+    min-width: 800px;
+  }
+
+  ::ng-deep {
+    .mat-mdc-dialog-container {
+      max-width: 95vw !important;
+      max-height: 90vh !important;
+      width: auto !important;
+    }
+  }
+
+  .dialog-header {
+    padding: 16px 20px;
+
+    .dialog-title {
+      font-size: 1.2rem;
+    }
+  }
+
+  .form-container {
+    padding: 16px;
+    margin: 8px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+
+  .dialog-actions {
+    padding: 12px 16px;
+    flex-direction: column-reverse;
+
+    button {
+      width: 100%;
+      margin: 4px 0;
+    }
+  }
+
+  .correos-section {
     margin-top: 16px;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e0e0e0;
+    padding-top: 16px;
+  }
+
+  .excel-info {
+    padding: 10px;
+    margin-bottom: 12px;
+
+    p {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .card-body {
+    padding: 16px;
+  }
+
+  .search-section {
+    padding: 12px;
+  }
+
+  .form-container {
+    padding: 12px;
+    margin: 6px;
+  }
+
+  .dialog-header {
+    padding: 12px 16px;
+  }
+
+  .dialog-actions {
+    padding: 10px 12px;
   }
 }
 
@@ -244,32 +581,37 @@
   color: white !important;
 }
 
-// Responsive
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
+// Animaciones suaves
+.form-container,
+.search-section,
+.table-container {
+  transition: all 0.3s ease;
 
-    .header-actions {
-      width: 100%;
-      justify-content: flex-start;
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Estados de validación mejorados
+::ng-deep {
+  .mat-mdc-form-field.mat-form-field-invalid {
+    .mdc-notched-outline {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: #f44336 !important;
+      }
     }
   }
 
-  .search-section {
-    flex-direction: column;
-
-    .search-field {
-      width: 100%;
+  .mat-mdc-form-field.ng-valid.ng-touched {
+    .mdc-notched-outline {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: #4caf50 !important;
+      }
     }
-
-    .search-btn {
-      margin-top: 0;
-      width: 100%;
-    }
-  }
-
-  .certificados-table {
-    min-width: 800px;
   }
 }
