@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import {Component, OnInit, OnDestroy, ViewChild, TemplateRef} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -18,9 +18,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { TipoCertificadoService, TipoCertificado } from '../../services/tipo-certificado.service';
 
 import { Certificado, CreateCertificadoRequest, CertificadoService } from '../../services/certificado.service';
 import { EjecutivoService, Ejecutivo } from '../../services/ejecutivo.service';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-certificado',
@@ -51,6 +53,7 @@ import { EjecutivoService, Ejecutivo } from '../../services/ejecutivo.service';
 export class CertificadoComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: any;
+  @ViewChild('certificadoDialog') certificadoDialog!: TemplateRef<any>;
 
   certificados: Certificado[] = [];
   ejecutivos: Ejecutivo[] = [];
@@ -87,17 +90,12 @@ export class CertificadoComponent implements OnInit, OnDestroy {
     { value: 'VENCIDO', label: 'Vencido', class: 'estado-vencido' }
   ];
 
-  // Tipos de certificado
-  tiposCertificado = [
-    { value: 'PERSONA JURIDICA', label: 'Persona Jurídica' },
-    { value: 'PERSONA NATURAL', label: 'Persona Natural' }
-  ];
+  tiposCertificadoData: TipoCertificado[] = [];
 
   // Formulario
   certificadoForm!: FormGroup;
   isEditing = false;
   currentCertificadoId?: number;
-  showDialog = false;
 
   // Carga de archivo
   selectedFile: File | null = null;
@@ -109,8 +107,10 @@ export class CertificadoComponent implements OnInit, OnDestroy {
   constructor(
     private certificadoService: CertificadoService,
     private ejecutivoService: EjecutivoService,
+    private tipoCertificadoService: TipoCertificadoService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.createForm();
   }
@@ -118,7 +118,7 @@ export class CertificadoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadCertificados();
     this.loadEjecutivos();
-    // Actualizar cada 5 minutos para refrescar vigencia
+    this.loadTiposCertificado();
     this.updateTimer = setInterval(() => {
       this.loadCertificados();
     }, 300000); // 5 minutos
@@ -151,19 +151,6 @@ export class CertificadoComponent implements OnInit, OnDestroy {
       correoEjecutivo1: ['', [Validators.email]],
       correoEjecutivo2: ['', [Validators.email]],
       correoEjecutivo3: ['', [Validators.email]]
-    });
-
-    // Listener para tipo de certificado
-    this.certificadoForm.get('tipoCertificado')?.valueChanges.subscribe(tipo => {
-      if (tipo === 'PERSONA NATURAL') {
-        // Limpiar campos de empresa para persona natural
-        this.certificadoForm.patchValue({
-          razonSocial: '',
-          numeroRuc: '',
-          departamento: '',
-          cargo: ''
-        });
-      }
     });
   }
 
@@ -260,14 +247,14 @@ export class CertificadoComponent implements OnInit, OnDestroy {
         fechaVencimiento: new Date()
       });
     }
-    this.showDialog = true;
+    this.dialog.open(this.certificadoDialog, { width: '800px', disableClose: true });
   }
 
   closeDialog(): void {
     this.certificadoForm.reset();
     this.isEditing = false;
     this.currentCertificadoId = undefined;
-    this.showDialog = false;
+    this.dialog.closeAll();
   }
 
   onSubmit(): void {
@@ -506,6 +493,18 @@ export class CertificadoComponent implements OnInit, OnDestroy {
       month: '2-digit',
       year: 'numeric'
     });
+  }
+
+  loadTiposCertificado(): void {
+    this.tipoCertificadoService.getTiposCertificado(0, 100)
+      .subscribe({
+        next: (response) => {
+          this.tiposCertificadoData = response.content;
+        },
+        error: (error) => {
+          console.error('Error al cargar tipos de certificado:', error);
+        }
+      });
   }
 
   formatDateForBackend(date: Date): string {
