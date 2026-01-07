@@ -12,9 +12,50 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter, DateAdapter } from '@angular/material/core';
 
 import { LicenciaManagementService, Licencia, CreateLicenciaRequest, UpdateLicenciaRequest } from '../../services/licencia-management.service';
 import Swal from 'sweetalert2';
+
+// Formato de fecha personalizado para DD/MM/YYYY
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'DD/MM/YYYY',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
+// Adaptador personalizado para formato DD/MM/YYYY
+export class CustomDateAdapter extends NativeDateAdapter {
+  override parse(value: any): Date | null {
+    if (typeof value === 'string') {
+      const parts = value.split('/');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+      }
+    }
+    return super.parse(value);
+  }
+
+  override format(date: Date, displayFormat: Object): string {
+    if (displayFormat === 'DD/MM/YYYY') {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    return super.format(date, displayFormat);
+  }
+}
 
 @Component({
   selector: 'app-licencias',
@@ -33,7 +74,14 @@ import Swal from 'sweetalert2';
     MatChipsModule,
     MatDialogModule,
     MatSnackBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatDatepickerModule,
+    MatNativeDateModule
+  ],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: MAT_DATE_LOCALE, useValue: 'es-PE' }
   ],
   templateUrl: './licencias.component.html',
   styleUrls: ['./licencias.component.scss']
@@ -54,6 +102,8 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   // Búsqueda
   searchEmpresa = '';
   searchMac = '';
+  searchEstado = '';
+  searchFechaCreacion: Date | null = null;
 
   // Formulario
   licenciaForm!: FormGroup;
@@ -129,18 +179,31 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   }
 
   buscar(): void {
-    if (this.searchEmpresa || this.searchMac) {
-      this.licenciaService.searchLicencias(this.searchEmpresa, this.searchMac, this.currentPage, this.pageSize)
-        .subscribe({
-          next: (response) => {
-            this.licencias = response.content;
-            this.totalElements = response.totalElements;
-          },
-          error: (error) => {
-            console.error('Error en la búsqueda:', error);
-            Swal.fire('Error', 'Error al buscar licencias', 'error');
-          }
-        });
+    // Resetear a la primera página cuando se hace una búsqueda
+    this.currentPage = 0;
+
+    if (this.searchEmpresa || this.searchMac || this.searchEstado || this.searchFechaCreacion) {
+      // Formatear fecha si existe (se envía como fechaInicio para que busque ese día específico)
+      const fechaCreacionStr = this.searchFechaCreacion ? this.formatDateForSearch(this.searchFechaCreacion) : undefined;
+
+      this.licenciaService.searchLicenciasConFechas(
+        this.searchEmpresa,
+        this.searchMac,
+        this.searchEstado,
+        fechaCreacionStr,
+        undefined, // fechaFin no se usa
+        this.currentPage,
+        this.pageSize
+      ).subscribe({
+        next: (response) => {
+          this.licencias = response.content;
+          this.totalElements = response.totalElements;
+        },
+        error: (error) => {
+          console.error('Error en la búsqueda:', error);
+          Swal.fire('Error', 'Error al buscar licencias', 'error');
+        }
+      });
     } else {
       this.loadLicencias();
     }
@@ -149,7 +212,16 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   limpiarBusqueda(): void {
     this.searchEmpresa = '';
     this.searchMac = '';
+    this.searchEstado = '';
+    this.searchFechaCreacion = null;
     this.loadLicencias();
+  }
+
+  formatDateForSearch(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   openDialog(licencia?: Licencia): void {
@@ -378,5 +450,57 @@ export class LicenciasComponent implements OnInit, OnDestroy {
     if (totalHoras <= 72) return 'dias-advertencia';  // Menos de 3 días
     if (totalHoras <= 168) return 'dias-precaucion';  // Menos de 1 semana
     return 'dias-ok';
+  }
+
+  descargarExcel(): void {
+    const fechaCreacionStr = this.searchFechaCreacion ? this.formatDateForSearch(this.searchFechaCreacion) : undefined;
+
+    this.licenciaService.descargarExcel(
+      this.searchEmpresa,
+      this.searchMac,
+      this.searchEstado,
+      fechaCreacionStr
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `licencias_${new Date().toISOString().slice(0,10)}.xlsx`;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire('Éxito', 'Excel descargado correctamente', 'success');
+      },
+      error: (error) => {
+        console.error('Error al descargar Excel:', error);
+        Swal.fire('Error', 'No se pudo descargar el Excel', 'error');
+      }
+    });
+  }
+
+  descargarPdf(): void {
+    const fechaCreacionStr = this.searchFechaCreacion ? this.formatDateForSearch(this.searchFechaCreacion) : undefined;
+
+    this.licenciaService.descargarPdf(
+      this.searchEmpresa,
+      this.searchMac,
+      this.searchEstado,
+      fechaCreacionStr
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `licencias_${new Date().toISOString().slice(0,10)}.pdf`;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire('Éxito', 'PDF descargado correctamente', 'success');
+      },
+      error: (error) => {
+        console.error('Error al descargar PDF:', error);
+        Swal.fire('Error', 'No se pudo descargar el PDF', 'error');
+      }
+    });
   }
 }

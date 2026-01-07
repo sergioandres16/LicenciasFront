@@ -16,6 +16,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { ProyectoService, Proyecto, CreateProyectoRequest, UpdateProyectoRequest } from '../../services/proyecto.service';
 import { ExcelExportService } from '../../services/excel-export.service';
@@ -43,7 +44,8 @@ import Swal from 'sweetalert2';
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
-    MatMenuModule
+    MatMenuModule,
+    MatSlideToggleModule
   ],
   templateUrl: './proyectos.component.html',
   styleUrls: ['./proyectos.component.scss']
@@ -126,14 +128,15 @@ export class ProyectosComponent implements OnInit, OnDestroy {
 
   createForm(): void {
     this.proyectoForm = this.fb.group({
-      idProducto: ['', [Validators.required]],
+      idProducto: [{value: '', disabled: true}], // Se genera automáticamente
       producto: ['', [Validators.required]],
       fechaInicio: [new Date(), [Validators.required]],
       vigenciaValor: [1, [Validators.required, Validators.min(1)]],
       vigenciaUnidad: ['meses', [Validators.required]],
       correoVendedor1: ['', [Validators.required, Validators.email]],
       correoVendedor2: ['', [Validators.email]],
-      correoJefeVendedor: ['', [Validators.email]]
+      correoJefeVendedor: ['', [Validators.email]],
+      activo: [true]
     });
   }
 
@@ -244,14 +247,21 @@ export class ProyectosComponent implements OnInit, OnDestroy {
         vigenciaUnidad: vigenciaUnidad,
         correoVendedor1: proyecto.correoVendedor1,
         correoVendedor2: proyecto.correoVendedor2 || '',
-        correoJefeVendedor: proyecto.correoJefeVendedor || ''
+        correoJefeVendedor: proyecto.correoJefeVendedor || '',
+        activo: proyecto.activo !== undefined ? proyecto.activo : true
       });
+      // El ID de producto es solo lectura, siempre deshabilitado
+      this.proyectoForm.get('idProducto')?.disable();
     } else {
       this.proyectoForm.reset({
+        idProducto: '',
         fechaInicio: new Date(),
         vigenciaValor: 1,
-        vigenciaUnidad: 'meses'
+        vigenciaUnidad: 'meses',
+        activo: true
       });
+      // En modo creación, el ID se genera automáticamente
+      this.proyectoForm.get('idProducto')?.disable();
     }
 
     this.dialog.open(this.proyectoDialog, {
@@ -285,13 +295,14 @@ export class ProyectosComponent implements OnInit, OnDestroy {
 
     if (this.isEditing && this.currentProyectoId) {
       const updateRequest: UpdateProyectoRequest = {
-        idProducto: formValue.idProducto,
+        // idProducto NO se envía, no es editable
         producto: formValue.producto,
         fechaInicio: fechaInicio,
         vigencia: vigencia,
         correoVendedor1: formValue.correoVendedor1,
         correoVendedor2: formValue.correoVendedor2 || undefined,
-        correoJefeVendedor: formValue.correoJefeVendedor || undefined
+        correoJefeVendedor: formValue.correoJefeVendedor || undefined,
+        activo: formValue.activo
       };
 
       this.proyectoService.updateProyecto(this.currentProyectoId, updateRequest)
@@ -308,7 +319,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
         });
     } else {
       const createRequest: CreateProyectoRequest = {
-        idProducto: formValue.idProducto,
+        // idProducto NO se envía, se genera automáticamente en el backend
         producto: formValue.producto,
         fechaInicio: fechaInicio,
         vigencia: vigencia,
@@ -684,6 +695,30 @@ export class ProyectosComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error al obtener proyectos personalizados:', error);
         Swal.fire('Error', 'No se pudieron obtener los proyectos', 'error');
+      }
+    });
+  }
+
+  descargarExcel(): void {
+    this.proyectoService.descargarExcel(
+      this.searchIdProducto,
+      this.searchProducto,
+      this.searchCorreo,
+      this.searchEstado
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `proyectos_${new Date().toISOString().slice(0,10)}.xlsx`;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire('Éxito', 'Excel descargado correctamente', 'success');
+      },
+      error: (error) => {
+        console.error('Error al descargar Excel:', error);
+        Swal.fire('Error', 'No se pudo descargar el Excel', 'error');
       }
     });
   }

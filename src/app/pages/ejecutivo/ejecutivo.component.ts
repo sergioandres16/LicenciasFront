@@ -13,10 +13,49 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter, DateAdapter } from '@angular/material/core';
 
 import { EjecutivoService, Ejecutivo, CreateEjecutivoRequest, UpdateEjecutivoRequest } from '../../services/ejecutivo.service';
 import Swal from 'sweetalert2';
+
+// Formato de fecha personalizado para DD/MM/YYYY
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'DD/MM/YYYY',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
+// Adaptador personalizado para formato DD/MM/YYYY
+export class CustomDateAdapter extends NativeDateAdapter {
+  override parse(value: any): Date | null {
+    if (typeof value === 'string') {
+      const parts = value.split('/');
+      if (parts.length === 3) {
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+      }
+    }
+    return super.parse(value);
+  }
+
+  override format(date: Date, displayFormat: Object): string {
+    if (displayFormat === 'DD/MM/YYYY') {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+    return super.format(date, displayFormat);
+  }
+}
 
 @Component({
   selector: 'app-ejecutivo',
@@ -38,6 +77,11 @@ import Swal from 'sweetalert2';
     MatTooltipModule,
     MatDatepickerModule,
     MatNativeDateModule
+  ],
+  providers: [
+    { provide: DateAdapter, useClass: CustomDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
+    { provide: MAT_DATE_LOCALE, useValue: 'es-PE' }
   ],
   templateUrl: './ejecutivo.component.html',
   styleUrls: ['./ejecutivo.component.scss']
@@ -82,8 +126,16 @@ export class EjecutivoComponent implements OnInit {
 
   createForm(): void {
     this.ejecutivoForm = this.fb.group({
-      nombreEjecutivo: ['', [Validators.required, Validators.maxLength(255)]],
-      abreviatura: ['', [Validators.required, Validators.maxLength(50)]],
+      nombreEjecutivo: ['', [
+        Validators.required,
+        Validators.maxLength(255),
+        Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$')
+      ]],
+      abreviatura: ['', [
+        Validators.required,
+        Validators.maxLength(50),
+        Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$')
+      ]],
       estado: ['1', [Validators.required, Validators.pattern('^[01]$')]]
     });
   }
@@ -273,6 +325,62 @@ export class EjecutivoComponent implements OnInit {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
+    });
+  }
+
+  descargarExcel(): void {
+    const fechaInicioStr = this.searchFechaInicio ? this.formatDateForSearch(this.searchFechaInicio) : undefined;
+    const fechaFinStr = this.searchFechaFin ? this.formatDateForSearch(this.searchFechaFin) : undefined;
+
+    this.ejecutivoService.descargarExcel(
+      this.searchNombre || undefined,
+      this.searchAbreviatura || undefined,
+      this.searchEstado || undefined,
+      fechaInicioStr,
+      fechaFinStr
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `ejecutivos_${new Date().toISOString().slice(0,10)}.xlsx`;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire('Éxito', 'Excel descargado correctamente', 'success');
+      },
+      error: (error) => {
+        console.error('Error al descargar Excel:', error);
+        Swal.fire('Error', 'No se pudo descargar el archivo Excel', 'error');
+      }
+    });
+  }
+
+  descargarPdf(): void {
+    const fechaInicioStr = this.searchFechaInicio ? this.formatDateForSearch(this.searchFechaInicio) : undefined;
+    const fechaFinStr = this.searchFechaFin ? this.formatDateForSearch(this.searchFechaFin) : undefined;
+
+    this.ejecutivoService.descargarPdf(
+      this.searchNombre || undefined,
+      this.searchAbreviatura || undefined,
+      this.searchEstado || undefined,
+      fechaInicioStr,
+      fechaFinStr
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `ejecutivos_${new Date().toISOString().slice(0,10)}.pdf`;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire('Éxito', 'PDF descargado correctamente', 'success');
+      },
+      error: (error) => {
+        console.error('Error al descargar PDF:', error);
+        Swal.fire('Error', 'No se pudo descargar el archivo PDF', 'error');
+      }
     });
   }
 }

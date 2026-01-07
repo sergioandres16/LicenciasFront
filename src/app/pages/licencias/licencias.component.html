@@ -8,10 +8,26 @@
               <h1 class="titulo">Gestión de Licencias</h1>
               <p class="subtitulo">Administre las licencias del sistema</p>
             </div>
-            <button mat-raised-button color="primary" (click)="openDialog()">
-              <mat-icon>add</mat-icon>
-              Nueva Licencia
-            </button>
+            <div style="display: flex; gap: 12px;">
+              <button mat-raised-button
+                      style="background-color: #10b981; color: white;"
+                      (click)="descargarExcel()"
+                      matTooltip="Descargar tabla en formato Excel">
+                <mat-icon>table_chart</mat-icon>
+                Descargar tabla en Excel
+              </button>
+              <button mat-raised-button
+                      style="background-color: #ef4444; color: white;"
+                      (click)="descargarPdf()"
+                      matTooltip="Descargar tabla en formato PDF">
+                <mat-icon>picture_as_pdf</mat-icon>
+                Descargar tabla en PDF
+              </button>
+              <button mat-raised-button color="primary" (click)="openDialog()">
+                <mat-icon>add</mat-icon>
+                Nueva Licencia
+              </button>
+            </div>
           </div>
         </div>
 
@@ -28,6 +44,23 @@
               <mat-label>Buscar por MAC</mat-label>
               <input matInput [(ngModel)]="searchMac" (keyup.enter)="buscar()">
               <mat-icon matSuffix>router</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Estado</mat-label>
+              <mat-select [(ngModel)]="searchEstado" (selectionChange)="buscar()">
+                <mat-option value="">Todos</mat-option>
+                <mat-option value="1">Activo</mat-option>
+                <mat-option value="0">Inactivo</mat-option>
+              </mat-select>
+              <mat-icon matSuffix>flag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Fecha de creación</mat-label>
+              <input matInput [matDatepicker]="pickerCreacion" [(ngModel)]="searchFechaCreacion" placeholder="DD/MM/AAAA">
+              <mat-datepicker-toggle matIconSuffix [for]="pickerCreacion"></mat-datepicker-toggle>
+              <mat-datepicker #pickerCreacion></mat-datepicker>
             </mat-form-field>
 
             <button mat-raised-button color="primary" (click)="buscar()" class="search-btn">

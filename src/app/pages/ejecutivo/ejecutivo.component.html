@@ -8,10 +8,26 @@
               <h1 class="titulo">Ejecutivos</h1>
               <p class="subtitulo">Administre los ejecutivos del sistema</p>
             </div>
-            <button mat-raised-button color="primary" (click)="openDialog()">
-              <mat-icon>add</mat-icon>
-              Nuevo Ejecutivo
-            </button>
+            <div style="display: flex; gap: 12px;">
+              <button mat-raised-button
+                      style="background-color: #10b981; color: white;"
+                      (click)="descargarExcel()"
+                      matTooltip="Descargar tabla en formato Excel">
+                <mat-icon>table_chart</mat-icon>
+                Descargar tabla en Excel
+              </button>
+              <button mat-raised-button
+                      style="background-color: #ef4444; color: white;"
+                      (click)="descargarPdf()"
+                      matTooltip="Descargar tabla en formato PDF">
+                <mat-icon>picture_as_pdf</mat-icon>
+                Descargar tabla en PDF
+              </button>
+              <button mat-raised-button color="primary" (click)="openDialog()">
+                <mat-icon>add</mat-icon>
+                Nuevo Ejecutivo
+              </button>
+            </div>
           </div>
         </div>
 
@@ -42,14 +58,14 @@
 
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Fecha inicio</mat-label>
-              <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="searchFechaInicio" placeholder="Desde">
+              <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="searchFechaInicio" placeholder="DD/MM/AAAA">
               <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
               <mat-datepicker #pickerInicio></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Fecha fin</mat-label>
-              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="searchFechaFin" placeholder="Hasta">
+              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="searchFechaFin" placeholder="DD/MM/AAAA">
               <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
               <mat-datepicker #pickerFin></mat-datepicker>
             </mat-form-field>
@@ -169,6 +185,9 @@
           <mat-error *ngIf="ejecutivoForm.get('nombreEjecutivo')?.hasError('maxlength')">
             El nombre no puede exceder 255 caracteres
           </mat-error>
+          <mat-error *ngIf="ejecutivoForm.get('nombreEjecutivo')?.hasError('pattern')">
+            No se permiten números ni caracteres especiales
+          </mat-error>
         </mat-form-field>
       </div>
 
@@ -184,6 +203,9 @@
           </mat-error>
           <mat-error *ngIf="ejecutivoForm.get('abreviatura')?.hasError('maxlength')">
             La abreviatura no puede exceder 50 caracteres
+          </mat-error>
+          <mat-error *ngIf="ejecutivoForm.get('abreviatura')?.hasError('pattern')">
+            No se permiten números ni caracteres especiales
           </mat-error>
         </mat-form-field>
 

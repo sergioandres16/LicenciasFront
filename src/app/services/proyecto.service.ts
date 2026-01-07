@@ -24,7 +24,7 @@ export interface Proyecto {
 }
 
 export interface CreateProyectoRequest {
-  idProducto: string;
+  // idProducto se genera automáticamente en el backend
   producto: string;
   fechaInicio: string;
   vigencia: string;
@@ -34,7 +34,7 @@ export interface CreateProyectoRequest {
 }
 
 export interface UpdateProyectoRequest {
-  idProducto?: string;
+  // idProducto NO es editable después de la creación
   producto?: string;
   fechaInicio?: string;
   vigencia?: string;
@@ -189,6 +189,62 @@ export class ProyectoService {
    */
   descargarPlantillaBackend(): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/plantilla-excel`, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Descarga Excel de proyectos según filtros
+   */
+  descargarExcel(idProducto?: string, producto?: string, correo?: string, estado?: string): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (idProducto) {
+      params = params.set('idProducto', idProducto);
+    }
+
+    if (producto) {
+      params = params.set('producto', producto);
+    }
+
+    if (correo) {
+      params = params.set('correo', correo);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-excel`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Descarga PDF de proyectos según filtros
+   */
+  descargarPdf(idProducto?: string, producto?: string, correo?: string, estado?: string): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (idProducto) {
+      params = params.set('idProducto', idProducto);
+    }
+
+    if (producto) {
+      params = params.set('producto', producto);
+    }
+
+    if (correo) {
+      params = params.set('correo', correo);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-pdf`, {
+      params,
       responseType: 'blob'
     });
   }

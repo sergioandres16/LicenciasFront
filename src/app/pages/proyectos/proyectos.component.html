@@ -9,6 +9,14 @@
               <p class="subtitulo">Administre los proyectos y sus alertas de vencimiento</p>
             </div>
             <div class="header-actions">
+              <button mat-raised-button
+                      style="background-color: #10b981; color: white;"
+                      (click)="descargarExcel()"
+                      matTooltip="Descargar tabla en formato Excel"
+                      class="me-2">
+                <mat-icon>table_chart</mat-icon>
+                Descargar Excel
+              </button>
               <button mat-raised-button color="primary" (click)="openDialog()" class="me-2">
                 <mat-icon>add</mat-icon>
                 Nuevo Proyecto
@@ -238,13 +246,16 @@
   <mat-dialog-content>
     <form [formGroup]="proyectoForm">
       <div class="form-row">
-        <mat-form-field appearance="outline" class="half-width">
+        <mat-form-field appearance="outline" class="half-width" *ngIf="isEditing">
           <mat-label>ID Producto</mat-label>
-          <input matInput formControlName="idProducto" placeholder="PROD-001">
-          <mat-error *ngIf="proyectoForm.get('idProducto')?.hasError('required')">
-            El ID del producto es obligatorio
-          </mat-error>
+          <input matInput formControlName="idProducto" placeholder="Se genera automáticamente">
+          <mat-hint>El ID no es editable</mat-hint>
         </mat-form-field>
+
+        <div *ngIf="!isEditing" class="half-width auto-id-message">
+          <mat-icon>info</mat-icon>
+          <span>El ID del producto se generará automáticamente al crear el proyecto</span>
+        </div>
 
         <mat-form-field appearance="outline" class="half-width">
           <mat-label>Producto</mat-label>
@@ -325,6 +336,22 @@
             Ingrese un correo válido
           </mat-error>
         </mat-form-field>
+      </div>
+
+      <!-- Campo Activo solo en modo edición -->
+      <div class="form-row" *ngIf="isEditing">
+        <div class="estado-control">
+          <mat-slide-toggle formControlName="activo" color="primary">
+            <span class="toggle-label">
+              <mat-icon>{{ proyectoForm.get('activo')?.value ? 'check_circle' : 'cancel' }}</mat-icon>
+              Estado: {{ proyectoForm.get('activo')?.value ? 'Activo' : 'Inactivo' }}
+            </span>
+          </mat-slide-toggle>
+          <mat-hint class="estado-hint">
+            <mat-icon>info</mat-icon>
+            Al cambiar la vigencia, el estado se recalculará automáticamente. Puedes cambiarlo manualmente aquí si es necesario.
+          </mat-hint>
+        </div>
       </div>
     </form>
 

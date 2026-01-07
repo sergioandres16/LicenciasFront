@@ -25,6 +25,7 @@ export interface Certificado {
   correoEjecutivo1?: string;
   correoEjecutivo2?: string;
   correoEjecutivo3?: string;
+  vigenciaAnios?: number;
   vigenciaDias?: number;
   estado?: string;
   fechaCarga?: string;
@@ -34,7 +35,7 @@ export interface Certificado {
 
 export interface CreateCertificadoRequest {
   fechaEmision: string;
-  fechaVencimiento: string;
+  vigenciaAnios: number;
   ejecutivoId: number;
   tipoCertificado: string;
   nombres: string;
@@ -56,7 +57,7 @@ export interface CreateCertificadoRequest {
 
 export interface UpdateCertificadoRequest {
   fechaEmision?: string;
-  fechaVencimiento?: string;
+  vigenciaAnios?: number;
   ejecutivoId?: number;
   tipoCertificado?: string;
   nombres?: string;
@@ -164,6 +165,33 @@ export class CertificadoService {
 
   descargarPlantilla(): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/descargar-plantilla`, {
+      responseType: 'blob'
+    });
+  }
+
+  descargarExcel(
+    ejecutivoId?: number,
+    razonSocial?: string,
+    nombres?: string,
+    estado?: string
+  ): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (ejecutivoId) {
+      params = params.set('ejecutivoId', ejecutivoId.toString());
+    }
+    if (razonSocial) {
+      params = params.set('razonSocial', razonSocial);
+    }
+    if (nombres) {
+      params = params.set('nombres', nombres);
+    }
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-excel`, {
+      params,
       responseType: 'blob'
     });
   }

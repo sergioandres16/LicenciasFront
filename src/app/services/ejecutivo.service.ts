@@ -115,4 +115,62 @@ export class EjecutivoService {
 
     return this.http.get<PageResponse<Ejecutivo>>(`${this.apiUrl}/search`, { params });
   }
+
+  descargarExcel(nombre?: string, abreviatura?: string, estado?: string, fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (nombre) {
+      params = params.set('nombre', nombre);
+    }
+
+    if (abreviatura) {
+      params = params.set('abreviatura', abreviatura);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    if (fechaInicio) {
+      params = params.set('fechaInicio', fechaInicio);
+    }
+
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-excel`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  descargarPdf(nombre?: string, abreviatura?: string, estado?: string, fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (nombre) {
+      params = params.set('nombre', nombre);
+    }
+
+    if (abreviatura) {
+      params = params.set('abreviatura', abreviatura);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    if (fechaInicio) {
+      params = params.set('fechaInicio', fechaInicio);
+    }
+
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }

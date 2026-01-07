@@ -337,6 +337,50 @@
   }
 }
 
+// Control de Estado (Activo/Inactivo)
+.estado-control {
+  width: 100%;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .estado-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #e3f2fd;
+    border-radius: 4px;
+    font-size: 0.813rem;
+    color: #1976d2;
+    line-height: 1.4;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+  }
+}
+
 // Información del Excel
 .excel-info {
   background-color: #e3f2fd;

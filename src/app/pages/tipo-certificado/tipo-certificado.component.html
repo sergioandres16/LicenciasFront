@@ -8,10 +8,26 @@
               <h1 class="titulo">Tipo de Certificado</h1>
               <p class="subtitulo">Administre los tipos de certificado del sistema</p>
             </div>
-            <button mat-raised-button color="primary" (click)="openDialog()">
-              <mat-icon>add</mat-icon>
-              Nuevo Tipo Certificado
-            </button>
+            <div style="display: flex; gap: 12px;">
+              <button mat-raised-button
+                      style="background-color: #10b981; color: white;"
+                      (click)="descargarExcel()"
+                      matTooltip="Descargar tabla en formato Excel">
+                <mat-icon>table_chart</mat-icon>
+                Descargar tabla en Excel
+              </button>
+              <button mat-raised-button
+                      style="background-color: #ef4444; color: white;"
+                      (click)="descargarPdf()"
+                      matTooltip="Descargar tabla en formato PDF">
+                <mat-icon>picture_as_pdf</mat-icon>
+                Descargar tabla en PDF
+              </button>
+              <button mat-raised-button color="primary" (click)="openDialog()">
+                <mat-icon>add</mat-icon>
+                Nuevo Tipo Certificado
+              </button>
+            </div>
           </div>
         </div>
 
@@ -32,14 +48,14 @@
 
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Fecha inicio</mat-label>
-              <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="searchFechaInicio" placeholder="Desde">
+              <input matInput [matDatepicker]="pickerInicio" [(ngModel)]="searchFechaInicio" placeholder="DD/MM/AAAA">
               <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
               <mat-datepicker #pickerInicio></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Fecha fin</mat-label>
-              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="searchFechaFin" placeholder="Hasta">
+              <input matInput [matDatepicker]="pickerFin" [(ngModel)]="searchFechaFin" placeholder="DD/MM/AAAA">
               <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
               <mat-datepicker #pickerFin></mat-datepicker>
             </mat-form-field>

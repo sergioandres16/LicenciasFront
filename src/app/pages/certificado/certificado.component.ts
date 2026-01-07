@@ -54,28 +54,23 @@ export class CertificadoComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: any;
   @ViewChild('certificadoDialog') certificadoDialog!: TemplateRef<any>;
+  @ViewChild('detalleDialog') detalleDialog!: TemplateRef<any>;
 
   certificados: Certificado[] = [];
   ejecutivos: Ejecutivo[] = [];
   displayedColumns: string[] = [
     'numeroDocumento',
     'nombreCompleto',
-    'tipoCertificado',
     'ejecutivo',
     'razonSocial',
-    'departamento',
-    'cargo',
-    'numeroRuc',
-    'direccion',
-    'codigoPostal',
-    'telefono',
     'fechaEmision',
     'fechaVencimiento',
-    'vigenciaDias',
-    'estado',
-    'correos',
+    'ver',
     'acciones'
   ];
+
+  // Opciones de vigencia en años
+  vigenciaOpciones = [1, 2, 3];
 
   // Paginación
   totalElements = 0;
@@ -139,12 +134,20 @@ export class CertificadoComponent implements OnInit, OnDestroy {
   createForm(): void {
     this.certificadoForm = this.fb.group({
       fechaEmision: [new Date(), [Validators.required]],
-      fechaVencimiento: [new Date(), [Validators.required]],
+      vigenciaAnios: [1, [Validators.required, Validators.min(1), Validators.max(3)]],
       ejecutivoId: ['', [Validators.required]],
       tipoCertificado: ['', [Validators.required]],
-      nombres: ['', [Validators.required]],
-      primerApellido: ['', [Validators.required]],
-      segundoApellido: [''],
+      nombres: ['', [
+        Validators.required,
+        Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$')
+      ]],
+      primerApellido: ['', [
+        Validators.required,
+        Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$')
+      ]],
+      segundoApellido: ['', [
+        Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$')
+      ]],
       numeroDocumento: ['', [Validators.required, Validators.pattern('^[0-9]{8,20}$')]],
       departamento: [''],
       cargo: [''],
@@ -227,7 +230,7 @@ export class CertificadoComponent implements OnInit, OnDestroy {
     if (certificado) {
       this.certificadoForm.patchValue({
         fechaEmision: new Date(certificado.fechaEmision),
-        fechaVencimiento: new Date(certificado.fechaVencimiento),
+        vigenciaAnios: certificado.vigenciaAnios || 1,
         ejecutivoId: certificado.ejecutivoId,
         tipoCertificado: certificado.tipoCertificado,
         nombres: certificado.nombres,
@@ -250,7 +253,7 @@ export class CertificadoComponent implements OnInit, OnDestroy {
       this.certificadoForm.reset();
       this.certificadoForm.patchValue({
         fechaEmision: new Date(),
-        fechaVencimiento: new Date()
+        vigenciaAnios: 1
       });
     }
     this.dialog.open(this.certificadoDialog, { width: '800px', disableClose: true });
@@ -260,6 +263,18 @@ export class CertificadoComponent implements OnInit, OnDestroy {
     this.certificadoForm.reset();
     this.isEditing = false;
     this.currentCertificadoId = undefined;
+    this.dialog.closeAll();
+  }
+
+  selectedCertificado?: Certificado;
+
+  openDetalleDialog(certificado: Certificado): void {
+    this.selectedCertificado = certificado;
+    this.dialog.open(this.detalleDialog, { width: '900px', disableClose: false });
+  }
+
+  closeDetalleDialog(): void {
+    this.selectedCertificado = undefined;
     this.dialog.closeAll();
   }
 
@@ -278,7 +293,7 @@ export class CertificadoComponent implements OnInit, OnDestroy {
     const request = {
       ...formValue,
       fechaEmision: this.formatDateForBackend(formValue.fechaEmision),
-      fechaVencimiento: this.formatDateForBackend(formValue.fechaVencimiento)
+      vigenciaAnios: formValue.vigenciaAnios
     };
 
     if (this.isEditing && this.currentCertificadoId) {
@@ -540,5 +555,29 @@ export class CertificadoComponent implements OnInit, OnDestroy {
 
   hasCorreos(certificado: Certificado): boolean {
     return !!(certificado.correoEjecutivo1 || certificado.correoEjecutivo2 || certificado.correoEjecutivo3);
+  }
+
+  descargarExcel(): void {
+    this.certificadoService.descargarExcel(
+      this.searchEjecutivoId,
+      this.searchRazonSocial,
+      this.searchNombres,
+      this.searchEstado
+    ).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const fileName = `certificados_${new Date().toISOString().slice(0,10)}.xlsx`;
+        link.download = fileName;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire('Éxito', 'Excel descargado correctamente', 'success');
+      },
+      error: (error) => {
+        console.error('Error al descargar Excel:', error);
+        Swal.fire('Error', 'No se pudo descargar el Excel', 'error');
+      }
+    });
   }
 }

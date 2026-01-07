@@ -9,6 +9,13 @@
               <p class="subtitulo">Administre los certificados digitales y sus alertas de vencimiento</p>
             </div>
             <div class="header-actions">
+              <button mat-raised-button
+                      style="background-color: #10b981; color: white;"
+                      (click)="descargarExcel()"
+                      matTooltip="Descargar tabla en formato Excel">
+                <mat-icon>table_chart</mat-icon>
+                Descargar Excel
+              </button>
               <button mat-raised-button color="primary" (click)="openDialog()">
                 <mat-icon>add</mat-icon>
                 Nuevo Certificado
@@ -81,7 +88,7 @@
 
               <!-- Columna Nombre Completo -->
               <ng-container matColumnDef="nombreCompleto">
-                <th mat-header-cell *matHeaderCellDef> Titular </th>
+                <th mat-header-cell *matHeaderCellDef> Suscriptor </th>
                 <td mat-cell *matCellDef="let certificado"> {{getNombreCompleto(certificado)}} </td>
               </ng-container>
 
@@ -151,6 +158,14 @@
                 <td mat-cell *matCellDef="let certificado"> {{formatDate(certificado.fechaEmision)}} </td>
               </ng-container>
 
+              <!-- Columna Vigencia en Años -->
+              <ng-container matColumnDef="vigenciaAnios">
+                <th mat-header-cell *matHeaderCellDef> Vigencia </th>
+                <td mat-cell *matCellDef="let certificado">
+                  {{certificado.vigenciaAnios}} {{certificado.vigenciaAnios === 1 ? 'año' : 'años'}}
+                </td>
+              </ng-container>
+
               <!-- Columna Fecha Vencimiento -->
               <ng-container matColumnDef="fechaVencimiento">
                 <th mat-header-cell *matHeaderCellDef> F. Vencimiento </th>
@@ -189,6 +204,18 @@
                     <mat-icon>email</mat-icon>
                   </button>
                   <span *ngIf="!hasCorreos(certificado)">-</span>
+                </td>
+              </ng-container>
+
+              <!-- Columna Ver Detalles -->
+              <ng-container matColumnDef="ver">
+                <th mat-header-cell *matHeaderCellDef> Ver </th>
+                <td mat-cell *matCellDef="let certificado" class="actions-cell">
+                  <button mat-icon-button color="accent"
+                          (click)="openDetalleDialog(certificado)"
+                          matTooltip="Ver detalles">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
                 </td>
               </ng-container>
 
@@ -255,12 +282,14 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Fecha de Vencimiento</mat-label>
-            <input matInput [matDatepicker]="vencimientoPicker" formControlName="fechaVencimiento" required>
-            <mat-datepicker-toggle matSuffix [for]="vencimientoPicker"></mat-datepicker-toggle>
-            <mat-datepicker #vencimientoPicker></mat-datepicker>
-            <mat-error *ngIf="certificadoForm.get('fechaVencimiento')?.hasError('required')">
-              La fecha de vencimiento es requerida
+            <mat-label>Vigencia</mat-label>
+            <mat-select formControlName="vigenciaAnios" required>
+              <mat-option *ngFor="let vigencia of vigenciaOpciones" [value]="vigencia">
+                {{vigencia}} {{vigencia === 1 ? 'año' : 'años'}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="certificadoForm.get('vigenciaAnios')?.hasError('required')">
+              La vigencia es requerida
             </mat-error>
           </mat-form-field>
         </div>
@@ -299,6 +328,9 @@
             <mat-error *ngIf="certificadoForm.get('nombres')?.hasError('required')">
               Los nombres son requeridos
             </mat-error>
+            <mat-error *ngIf="certificadoForm.get('nombres')?.hasError('pattern')">
+              Solo se permiten letras y espacios
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -307,6 +339,9 @@
             <mat-error *ngIf="certificadoForm.get('primerApellido')?.hasError('required')">
               El primer apellido es requerido
             </mat-error>
+            <mat-error *ngIf="certificadoForm.get('primerApellido')?.hasError('pattern')">
+              Solo se permiten letras
+            </mat-error>
           </mat-form-field>
         </div>
 
@@ -314,6 +349,9 @@
           <mat-form-field appearance="outline">
             <mat-label>Segundo Apellido</mat-label>
             <input matInput formControlName="segundoApellido">
+            <mat-error *ngIf="certificadoForm.get('segundoApellido')?.hasError('pattern')">
+              Solo se permiten letras
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline">
@@ -429,4 +467,175 @@
       </button>
     </div>
   </form>
+</ng-template>
+
+<!-- Template para el diálogo de detalles -->
+<ng-template #detalleDialog>
+  <div class="dialog-header">
+    <h2 class="dialog-title">Detalles del Certificado</h2>
+  </div>
+
+  <div class="dialog-content detalle-content">
+    <div class="detalle-container" *ngIf="selectedCertificado">
+      <!-- Información del Suscriptor -->
+      <div class="detalle-section">
+        <h3 class="section-title">
+          <mat-icon>person</mat-icon>
+          Información del Suscriptor
+        </h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Nombres:</label>
+            <span>{{selectedCertificado.nombres}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Primer Apellido:</label>
+            <span>{{selectedCertificado.primerApellido}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Segundo Apellido:</label>
+            <span>{{selectedCertificado.segundoApellido || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>N° Documento:</label>
+            <span>{{selectedCertificado.numeroDocumento}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Correo Electrónico:</label>
+            <span>{{selectedCertificado.correoElectronico || '-'}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Certificado -->
+      <div class="detalle-section">
+        <h3 class="section-title">
+          <mat-icon>verified</mat-icon>
+          Información del Certificado
+        </h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Tipo de Certificado:</label>
+            <mat-chip [color]="selectedCertificado.tipoCertificado === 'PERSONA JURIDICA' ? 'primary' : 'accent'" selected>
+              {{selectedCertificado.tipoCertificado}}
+            </mat-chip>
+          </div>
+          <div class="detalle-item">
+            <label>Ejecutivo:</label>
+            <span>{{selectedCertificado.ejecutivoNombre || 'N/A'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Fecha de Emisión:</label>
+            <span>{{formatDate(selectedCertificado.fechaEmision)}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Vigencia:</label>
+            <span>{{selectedCertificado.vigenciaAnios}} {{selectedCertificado.vigenciaAnios === 1 ? 'año' : 'años'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Fecha de Vencimiento:</label>
+            <span>{{formatDate(selectedCertificado.fechaVencimiento)}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Días de Vigencia:</label>
+            <span class="vigencia-dias" [class]="getVigenciaClass(selectedCertificado)">
+              {{getVigenciaInfo(selectedCertificado)}}
+            </span>
+          </div>
+          <div class="detalle-item">
+            <label>Estado:</label>
+            <mat-chip [class]="getEstadoClass(selectedCertificado.estado)" selected>
+              {{getEstadoLabel(selectedCertificado.estado)}}
+            </mat-chip>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de la Empresa -->
+      <div class="detalle-section">
+        <h3 class="section-title">
+          <mat-icon>business</mat-icon>
+          Información de la Empresa
+        </h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Razón Social:</label>
+            <span>{{selectedCertificado.razonSocial || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>N° RUC:</label>
+            <span>{{selectedCertificado.numeroRuc || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Departamento:</label>
+            <span>{{selectedCertificado.departamento || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Cargo:</label>
+            <span>{{selectedCertificado.cargo || '-'}}</span>
+          </div>
+          <div class="detalle-item full-width">
+            <label>Dirección:</label>
+            <span>{{selectedCertificado.direccion || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Código Postal:</label>
+            <span>{{selectedCertificado.codigoPostal || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Teléfono:</label>
+            <span>{{selectedCertificado.telefono || '-'}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Correos del Ejecutivo -->
+      <div class="detalle-section">
+        <h3 class="section-title">
+          <mat-icon>email</mat-icon>
+          Correos del Ejecutivo
+        </h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Correo Ejecutivo 1:</label>
+            <span>{{selectedCertificado.correoEjecutivo1 || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Correo Ejecutivo 2:</label>
+            <span>{{selectedCertificado.correoEjecutivo2 || '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Correo Ejecutivo 3:</label>
+            <span>{{selectedCertificado.correoEjecutivo3 || '-'}}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información del Sistema -->
+      <div class="detalle-section">
+        <h3 class="section-title">
+          <mat-icon>info</mat-icon>
+          Información del Sistema
+        </h3>
+        <div class="detalle-grid">
+          <div class="detalle-item">
+            <label>Fecha de Carga:</label>
+            <span>{{selectedCertificado.fechaCarga ? formatDate(selectedCertificado.fechaCarga) : '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Última Actualización:</label>
+            <span>{{selectedCertificado.fechaActualizacion ? formatDate(selectedCertificado.fechaActualizacion) : '-'}}</span>
+          </div>
+          <div class="detalle-item">
+            <label>Activo:</label>
+            <span>{{selectedCertificado.activo ? 'Sí' : 'No'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button mat-raised-button color="primary" (click)="closeDetalleDialog()">Cerrar</button>
+  </div>
 </ng-template>

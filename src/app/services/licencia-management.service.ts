@@ -122,4 +122,99 @@ export class LicenciaManagementService {
 
     return this.http.get<PageResponse<Licencia>>(`${this.apiUrl}/search`, { params });
   }
+
+  /**
+   * Busca licencias por empresa, MAC, estado y fechas
+   */
+  searchLicenciasConFechas(
+    empresa?: string,
+    mac?: string,
+    estado?: string,
+    fechaInicio?: string,
+    fechaFin?: string,
+    page: number = 0,
+    size: number = 10
+  ): Observable<PageResponse<Licencia>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+
+    if (empresa) {
+      params = params.set('empresa', empresa);
+    }
+
+    if (mac) {
+      params = params.set('mac', mac);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    if (fechaInicio) {
+      params = params.set('fechaInicio', fechaInicio);
+    }
+
+    if (fechaFin) {
+      params = params.set('fechaFin', fechaFin);
+    }
+
+    return this.http.get<PageResponse<Licencia>>(`${this.apiUrl}/search`, { params });
+  }
+
+  /**
+   * Descarga Excel de licencias según filtros
+   */
+  descargarExcel(empresa?: string, mac?: string, estado?: string, fechaCreacion?: string): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (empresa) {
+      params = params.set('empresa', empresa);
+    }
+
+    if (mac) {
+      params = params.set('mac', mac);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    if (fechaCreacion) {
+      params = params.set('fechaCreacion', fechaCreacion);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-excel`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Descarga PDF de licencias según filtros
+   */
+  descargarPdf(empresa?: string, mac?: string, estado?: string, fechaCreacion?: string): Observable<Blob> {
+    let params = new HttpParams();
+
+    if (empresa) {
+      params = params.set('empresa', empresa);
+    }
+
+    if (mac) {
+      params = params.set('mac', mac);
+    }
+
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    if (fechaCreacion) {
+      params = params.set('fechaCreacion', fechaCreacion);
+    }
+
+    return this.http.get(`${this.apiUrl}/descargar-pdf`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 }
