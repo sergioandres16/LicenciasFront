@@ -63,6 +63,11 @@ export class SidebarService {
             title: 'Ejecutivo',
             icon: 'assets/img/ejecutivo.png',
             url: 'ejecutivo'
+          },
+          {
+            title: 'Dependencias',
+            icon: 'assets/img/dependencia.png',
+            url: 'dependencia'
           }
         ]
       },

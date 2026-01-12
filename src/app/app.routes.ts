@@ -10,6 +10,7 @@ import { LicenciasComponent } from './pages/licencias/licencias.component';
 import { ProyectosComponent } from './pages/proyectos/proyectos.component';
 import { TipoCertificadoComponent } from './pages/tipo-certificado/tipo-certificado.component';
 import { EjecutivoComponent } from './pages/ejecutivo/ejecutivo.component';
+import { DependenciaComponent } from './pages/dependencia/dependencia.component';
 import {CertificadoComponent} from './pages/certificado/certificado.component';
 
 export const routes: Routes = [
@@ -50,6 +51,10 @@ export const routes: Routes = [
       {
         path: 'ejecutivo',
         component: EjecutivoComponent
+      },
+      {
+        path: 'dependencia',
+        component: DependenciaComponent
       }
     ]
   },

@@ -15,8 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter, DateAdapter } from '@angular/material/core';
 
-import { EjecutivoService, Ejecutivo, CreateEjecutivoRequest, UpdateEjecutivoRequest } from '../../services/ejecutivo.service';
-import { DependenciaService, Dependencia } from '../../services/dependencia.service';
+import { DependenciaService, Dependencia, CreateDependenciaRequest, UpdateDependenciaRequest } from '../../services/dependencia.service';
 import Swal from 'sweetalert2';
 
 // Formato de fecha personalizado para DD/MM/YYYY
@@ -59,7 +58,7 @@ export class CustomDateAdapter extends NativeDateAdapter {
 }
 
 @Component({
-  selector: 'app-ejecutivo',
+  selector: 'app-dependencia',
   standalone: true,
   imports: [
     CommonModule,
@@ -84,16 +83,15 @@ export class CustomDateAdapter extends NativeDateAdapter {
     { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS },
     { provide: MAT_DATE_LOCALE, useValue: 'es-PE' }
   ],
-  templateUrl: './ejecutivo.component.html',
-  styleUrls: ['./ejecutivo.component.scss']
+  templateUrl: './dependencia.component.html',
+  styleUrls: ['./dependencia.component.scss']
 })
-export class EjecutivoComponent implements OnInit {
+export class DependenciaComponent implements OnInit {
 
-  @ViewChild('ejecutivoDialog') ejecutivoDialog!: TemplateRef<any>;
+  @ViewChild('dependenciaDialog') dependenciaDialog!: TemplateRef<any>;
 
-  ejecutivos: Ejecutivo[] = [];
   dependencias: Dependencia[] = [];
-  displayedColumns: string[] = ['id', 'nombreEjecutivo', 'abreviatura', 'estado', 'fechaCreacion', 'acciones'];
+  displayedColumns: string[] = ['id', 'razonSocial', 'abreviatura', 'estado', 'fechaCreacion', 'acciones'];
 
   // Paginación
   totalElements = 0;
@@ -102,19 +100,18 @@ export class EjecutivoComponent implements OnInit {
   pageSizeOptions = [5, 10, 25, 50];
 
   // Búsqueda
-  searchNombre = '';
+  searchRazonSocial = '';
   searchAbreviatura = '';
   searchEstado = '';
   searchFechaInicio: Date | null = null;
   searchFechaFin: Date | null = null;
 
   // Formulario
-  ejecutivoForm!: FormGroup;
+  dependenciaForm!: FormGroup;
   isEditing = false;
-  currentEjecutivoId?: number;
+  currentDependenciaId?: number;
 
   constructor(
-    private ejecutivoService: EjecutivoService,
     private dependenciaService: DependenciaService,
     private fb: FormBuilder,
     private dialog: MatDialog,
@@ -124,54 +121,34 @@ export class EjecutivoComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadEjecutivos();
     this.loadDependencias();
   }
 
   createForm(): void {
-    this.ejecutivoForm = this.fb.group({
-      nombreEjecutivo: ['', [
+    this.dependenciaForm = this.fb.group({
+      razonSocial: ['', [
         Validators.required,
-        Validators.maxLength(255),
-        Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ\\s]+$')
+        Validators.maxLength(255)
       ]],
       abreviatura: ['', [
         Validators.required,
         Validators.maxLength(50),
         Validators.pattern('^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$')
       ]],
-      email: ['', [
-        Validators.required,
-        Validators.email,
-        Validators.maxLength(255)
-      ]],
-      estado: ['1', [Validators.required, Validators.pattern('^[01]$')]],
-      dependenciaId: [null]
+      estado: ['1', [Validators.required, Validators.pattern('^[01]$')]]
     });
   }
 
-  loadEjecutivos(): void {
-    this.ejecutivoService.getEjecutivos(this.currentPage, this.pageSize)
+  loadDependencias(): void {
+    this.dependenciaService.getDependencias(this.currentPage, this.pageSize)
       .subscribe({
         next: (response) => {
-          this.ejecutivos = response.content;
+          this.dependencias = response.content;
           this.totalElements = response.totalElements;
         },
         error: (error) => {
-          console.error('Error al cargar ejecutivos:', error);
-          Swal.fire('Error', 'No se pudieron cargar los ejecutivos', 'error');
-        }
-      });
-  }
-
-  loadDependencias(): void {
-    this.dependenciaService.getDependencias(0, 1000, 'razonSocial', 'ASC')
-      .subscribe({
-        next: (response) => {
-          this.dependencias = response.content.filter(d => d.estado === '1');
-        },
-        error: (error) => {
           console.error('Error al cargar dependencias:', error);
+          Swal.fire('Error', 'No se pudieron cargar las dependencias', 'error');
         }
       });
   }
@@ -179,7 +156,7 @@ export class EjecutivoComponent implements OnInit {
   onPageChange(event: PageEvent): void {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.loadEjecutivos();
+    this.loadDependencias();
   }
 
   buscar(): void {
@@ -187,8 +164,8 @@ export class EjecutivoComponent implements OnInit {
     const fechaInicioStr = this.searchFechaInicio ? this.formatDateForSearch(this.searchFechaInicio) : undefined;
     const fechaFinStr = this.searchFechaFin ? this.formatDateForSearch(this.searchFechaFin) : undefined;
 
-    this.ejecutivoService.searchEjecutivosConFechas(
-      this.searchNombre || undefined,
+    this.dependenciaService.searchDependenciasConFechas(
+      this.searchRazonSocial || undefined,
       this.searchAbreviatura || undefined,
       this.searchEstado || undefined,
       fechaInicioStr,
@@ -197,23 +174,23 @@ export class EjecutivoComponent implements OnInit {
       this.pageSize
     ).subscribe({
       next: (response) => {
-        this.ejecutivos = response.content;
+        this.dependencias = response.content;
         this.totalElements = response.totalElements;
       },
       error: (error) => {
         console.error('Error en la búsqueda:', error);
-        Swal.fire('Error', 'Error al buscar ejecutivos', 'error');
+        Swal.fire('Error', 'Error al buscar dependencias', 'error');
       }
     });
   }
 
   limpiarBusqueda(): void {
-    this.searchNombre = '';
+    this.searchRazonSocial = '';
     this.searchAbreviatura = '';
     this.searchEstado = '';
     this.searchFechaInicio = null;
     this.searchFechaFin = null;
-    this.loadEjecutivos();
+    this.loadDependencias();
   }
 
   formatDateForSearch(date: Date): string {
@@ -223,26 +200,23 @@ export class EjecutivoComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  openDialog(ejecutivo?: Ejecutivo): void {
-    this.isEditing = !!ejecutivo;
-    this.currentEjecutivoId = ejecutivo?.id;
+  openDialog(dependencia?: Dependencia): void {
+    this.isEditing = !!dependencia;
+    this.currentDependenciaId = dependencia?.id;
 
-    if (ejecutivo) {
-      this.ejecutivoForm.patchValue({
-        nombreEjecutivo: ejecutivo.nombreEjecutivo,
-        abreviatura: ejecutivo.abreviatura,
-        email: ejecutivo.email,
-        estado: ejecutivo.estado,
-        dependenciaId: ejecutivo.dependenciaId
+    if (dependencia) {
+      this.dependenciaForm.patchValue({
+        razonSocial: dependencia.razonSocial,
+        abreviatura: dependencia.abreviatura,
+        estado: dependencia.estado
       });
     } else {
-      this.ejecutivoForm.reset({
-        estado: '1',
-        dependenciaId: null
+      this.dependenciaForm.reset({
+        estado: '1'
       });
     }
 
-    this.dialog.open(this.ejecutivoDialog, {
+    this.dialog.open(this.dependenciaDialog, {
       width: '600px',
       disableClose: true
     });
@@ -250,70 +224,66 @@ export class EjecutivoComponent implements OnInit {
 
   closeDialog(): void {
     this.dialog.closeAll();
-    this.ejecutivoForm.reset();
+    this.dependenciaForm.reset();
     this.isEditing = false;
-    this.currentEjecutivoId = undefined;
+    this.currentDependenciaId = undefined;
   }
 
   onSubmit(): void {
-    if (this.ejecutivoForm.invalid) {
-      Object.keys(this.ejecutivoForm.controls).forEach(key => {
-        this.ejecutivoForm.get(key)?.markAsTouched();
+    if (this.dependenciaForm.invalid) {
+      Object.keys(this.dependenciaForm.controls).forEach(key => {
+        this.dependenciaForm.get(key)?.markAsTouched();
       });
       return;
     }
 
-    const formValue = this.ejecutivoForm.value;
+    const formValue = this.dependenciaForm.value;
 
-    if (this.isEditing && this.currentEjecutivoId) {
-      const updateRequest: UpdateEjecutivoRequest = {
-        nombreEjecutivo: formValue.nombreEjecutivo,
+    if (this.isEditing && this.currentDependenciaId) {
+      const updateRequest: UpdateDependenciaRequest = {
+        razonSocial: formValue.razonSocial,
         abreviatura: formValue.abreviatura,
-        email: formValue.email,
-        estado: formValue.estado,
-        dependenciaId: formValue.dependenciaId
+        estado: formValue.estado
       };
 
-      this.ejecutivoService.updateEjecutivo(this.currentEjecutivoId, updateRequest)
+      this.dependenciaService.updateDependencia(this.currentDependenciaId, updateRequest)
         .subscribe({
           next: () => {
-            Swal.fire('Éxito', 'Ejecutivo actualizado correctamente', 'success');
+            Swal.fire('Éxito', 'Dependencia actualizada correctamente', 'success');
             this.closeDialog();
-            this.loadEjecutivos();
+            this.loadDependencias();
           },
           error: (error) => {
             console.error('Error al actualizar:', error);
-            Swal.fire('Error', error.error?.message || 'Error al actualizar el ejecutivo', 'error');
+            Swal.fire('Error', error.error?.message || 'Error al actualizar la dependencia', 'error');
           }
         });
     } else {
-      const createRequest: CreateEjecutivoRequest = {
-        nombreEjecutivo: formValue.nombreEjecutivo,
+      const createRequest: CreateDependenciaRequest = {
+        razonSocial: formValue.razonSocial,
         abreviatura: formValue.abreviatura,
-        email: formValue.email,
-        estado: formValue.estado,
-        dependenciaId: formValue.dependenciaId
+        estado: formValue.estado
       };
 
-      this.ejecutivoService.createEjecutivo(createRequest)
+      this.dependenciaService.createDependencia(createRequest)
         .subscribe({
           next: () => {
-            Swal.fire('Éxito', 'Ejecutivo creado correctamente', 'success');
+            Swal.fire('Éxito', 'Dependencia creada correctamente', 'success');
             this.closeDialog();
-            this.loadEjecutivos();
+            this.loadDependencias();
           },
           error: (error) => {
             console.error('Error al crear:', error);
-            Swal.fire('Error', error.error?.message || 'Error al crear el ejecutivo', 'error');
+            Swal.fire('Error', error.error?.message || 'Error al crear la dependencia', 'error');
           }
         });
     }
   }
 
-  deleteEjecutivo(ejecutivo: Ejecutivo): void {
+  deleteDependencia(dependencia: Dependencia): void {
     Swal.fire({
       title: '¿Está seguro?',
-      text: `¿Desea eliminar el ejecutivo ${ejecutivo.nombreEjecutivo}?`,
+      text: `¿Desea eliminar la dependencia ${dependencia.razonSocial}?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -321,16 +291,16 @@ export class EjecutivoComponent implements OnInit {
       confirmButtonText: 'Sí, eliminar',
       cancelButtonText: 'Cancelar'
     }).then((result) => {
-      if (result.isConfirmed && ejecutivo.id) {
-        this.ejecutivoService.deleteEjecutivo(ejecutivo.id)
+      if (result.isConfirmed && dependencia.id) {
+        this.dependenciaService.deleteDependencia(dependencia.id)
           .subscribe({
             next: () => {
-              Swal.fire('Eliminado', 'El ejecutivo ha sido eliminado', 'success');
-              this.loadEjecutivos();
+              Swal.fire('Eliminado', 'La dependencia ha sido eliminada', 'success');
+              this.loadDependencias();
             },
             error: (error) => {
               console.error('Error al eliminar:', error);
-              Swal.fire('Error', 'No se pudo eliminar el ejecutivo', 'error');
+              Swal.fire('Error', 'No se pudo eliminar la dependencia', 'error');
             }
           });
       }
@@ -361,8 +331,8 @@ export class EjecutivoComponent implements OnInit {
     const fechaInicioStr = this.searchFechaInicio ? this.formatDateForSearch(this.searchFechaInicio) : undefined;
     const fechaFinStr = this.searchFechaFin ? this.formatDateForSearch(this.searchFechaFin) : undefined;
 
-    this.ejecutivoService.descargarExcel(
-      this.searchNombre || undefined,
+    this.dependenciaService.descargarExcel(
+      this.searchRazonSocial || undefined,
       this.searchAbreviatura || undefined,
       this.searchEstado || undefined,
       fechaInicioStr,
@@ -372,7 +342,7 @@ export class EjecutivoComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        const fileName = `ejecutivos_${new Date().toISOString().slice(0,10)}.xlsx`;
+        const fileName = `dependencias_${new Date().toISOString().slice(0,10)}.xlsx`;
         link.download = fileName;
         link.click();
         window.URL.revokeObjectURL(url);
@@ -389,8 +359,8 @@ export class EjecutivoComponent implements OnInit {
     const fechaInicioStr = this.searchFechaInicio ? this.formatDateForSearch(this.searchFechaInicio) : undefined;
     const fechaFinStr = this.searchFechaFin ? this.formatDateForSearch(this.searchFechaFin) : undefined;
 
-    this.ejecutivoService.descargarPdf(
-      this.searchNombre || undefined,
+    this.dependenciaService.descargarPdf(
+      this.searchRazonSocial || undefined,
       this.searchAbreviatura || undefined,
       this.searchEstado || undefined,
       fechaInicioStr,
@@ -400,7 +370,7 @@ export class EjecutivoComponent implements OnInit {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        const fileName = `ejecutivos_${new Date().toISOString().slice(0,10)}.pdf`;
+        const fileName = `dependencias_${new Date().toISOString().slice(0,10)}.pdf`;
         link.download = fileName;
         link.click();
         window.URL.revokeObjectURL(url);

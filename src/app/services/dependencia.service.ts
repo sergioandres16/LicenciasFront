@@ -4,76 +4,69 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PageResponse } from './proyecto.service';
 
-export interface Ejecutivo {
+export interface Dependencia {
   id?: number;
-  nombreEjecutivo: string;
+  razonSocial: string;
   abreviatura: string;
-  email: string;
   estado: string;
   activo?: boolean;
   fechaCreacion?: string;
   fechaActualizacion?: string;
-  dependenciaId?: number;
-  dependenciaNombre?: string;
 }
 
-export interface CreateEjecutivoRequest {
-  nombreEjecutivo: string;
+export interface CreateDependenciaRequest {
+  razonSocial: string;
   abreviatura: string;
-  email: string;
   estado?: string;
-  dependenciaId?: number;
 }
 
-export interface UpdateEjecutivoRequest {
-  nombreEjecutivo?: string;
+export interface UpdateDependenciaRequest {
+  razonSocial?: string;
   abreviatura?: string;
-  email?: string;
   estado?: string;
-  dependenciaId?: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class EjecutivoService {
-  private apiUrl = `${environment.apiBaseUrl}/administracion/ejecutivo`;
+export class DependenciaService {
+  private apiUrl = `${environment.apiBaseUrl}/administracion/dependencia`;
 
   constructor(private http: HttpClient) {}
 
-  getEjecutivos(page: number = 0, size: number = 10, sortBy: string = 'id', sortDir: string = 'DESC'): Observable<PageResponse<Ejecutivo>> {
+  getDependencias(page: number = 0, size: number = 10, sortBy: string = 'id', sortDir: string = 'DESC'): Observable<PageResponse<Dependencia>> {
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString())
       .set('sortBy', sortBy)
       .set('sortDir', sortDir);
 
-    return this.http.get<PageResponse<Ejecutivo>>(this.apiUrl, { params });
+    return this.http.get<PageResponse<Dependencia>>(this.apiUrl, { params });
   }
 
-  getEjecutivo(id: number): Observable<Ejecutivo> {
-    return this.http.get<Ejecutivo>(`${this.apiUrl}/${id}`);
+  getDependencia(id: number): Observable<Dependencia> {
+    return this.http.get<Dependencia>(`${this.apiUrl}/${id}`);
   }
 
-  createEjecutivo(ejecutivo: CreateEjecutivoRequest): Observable<Ejecutivo> {
-    return this.http.post<Ejecutivo>(this.apiUrl, ejecutivo);
+  createDependencia(dependencia: CreateDependenciaRequest): Observable<Dependencia> {
+    return this.http.post<Dependencia>(this.apiUrl, dependencia);
   }
 
-  updateEjecutivo(id: number, ejecutivo: UpdateEjecutivoRequest): Observable<Ejecutivo> {
-    return this.http.put<Ejecutivo>(`${this.apiUrl}/${id}`, ejecutivo);
+  updateDependencia(id: number, dependencia: UpdateDependenciaRequest): Observable<Dependencia> {
+    return this.http.put<Dependencia>(`${this.apiUrl}/${id}`, dependencia);
   }
 
-  deleteEjecutivo(id: number): Observable<any> {
+  deleteDependencia(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  searchEjecutivos(nombre?: string, abreviatura?: string, estado?: string, page: number = 0, size: number = 10): Observable<PageResponse<Ejecutivo>> {
+  searchDependencias(razonSocial?: string, abreviatura?: string, estado?: string, page: number = 0, size: number = 10): Observable<PageResponse<Dependencia>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    if (nombre) {
-      params = params.set('nombre', nombre);
+    if (razonSocial) {
+      params = params.set('razonSocial', razonSocial);
     }
 
     if (abreviatura) {
@@ -84,24 +77,24 @@ export class EjecutivoService {
       params = params.set('estado', estado);
     }
 
-    return this.http.get<PageResponse<Ejecutivo>>(`${this.apiUrl}/search`, { params });
+    return this.http.get<PageResponse<Dependencia>>(`${this.apiUrl}/search`, { params });
   }
 
-  searchEjecutivosConFechas(
-    nombre?: string,
+  searchDependenciasConFechas(
+    razonSocial?: string,
     abreviatura?: string,
     estado?: string,
     fechaInicio?: string,
     fechaFin?: string,
     page: number = 0,
     size: number = 10
-  ): Observable<PageResponse<Ejecutivo>> {
+  ): Observable<PageResponse<Dependencia>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
-    if (nombre) {
-      params = params.set('nombre', nombre);
+    if (razonSocial) {
+      params = params.set('razonSocial', razonSocial);
     }
 
     if (abreviatura) {
@@ -120,14 +113,14 @@ export class EjecutivoService {
       params = params.set('fechaFin', fechaFin);
     }
 
-    return this.http.get<PageResponse<Ejecutivo>>(`${this.apiUrl}/search`, { params });
+    return this.http.get<PageResponse<Dependencia>>(`${this.apiUrl}/search`, { params });
   }
 
-  descargarExcel(nombre?: string, abreviatura?: string, estado?: string, fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+  descargarExcel(razonSocial?: string, abreviatura?: string, estado?: string, fechaInicio?: string, fechaFin?: string): Observable<Blob> {
     let params = new HttpParams();
 
-    if (nombre) {
-      params = params.set('nombre', nombre);
+    if (razonSocial) {
+      params = params.set('razonSocial', razonSocial);
     }
 
     if (abreviatura) {
@@ -152,11 +145,11 @@ export class EjecutivoService {
     });
   }
 
-  descargarPdf(nombre?: string, abreviatura?: string, estado?: string, fechaInicio?: string, fechaFin?: string): Observable<Blob> {
+  descargarPdf(razonSocial?: string, abreviatura?: string, estado?: string, fechaInicio?: string, fechaFin?: string): Observable<Blob> {
     let params = new HttpParams();
 
-    if (nombre) {
-      params = params.set('nombre', nombre);
+    if (razonSocial) {
+      params = params.set('razonSocial', razonSocial);
     }
 
     if (abreviatura) {

@@ -91,7 +91,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
   @ViewChild('licenciaDialog') licenciaDialog!: TemplateRef<any>;
 
   licencias: Licencia[] = [];
-  displayedColumns: string[] = ['id', 'empresa', 'mac', 'estado', 'vigencia', 'diasRestantes', 'acciones'];
+  displayedColumns: string[] = ['id', 'empresa', 'mac', 'estado', 'fechaCreacion', 'vigencia', 'diasRestantes', 'acciones'];
 
   // Paginación
   totalElements = 0;
@@ -450,6 +450,18 @@ export class LicenciasComponent implements OnInit, OnDestroy {
     if (totalHoras <= 72) return 'dias-advertencia';  // Menos de 3 días
     if (totalHoras <= 168) return 'dias-precaucion';  // Menos de 1 semana
     return 'dias-ok';
+  }
+
+  formatFechaCreacion(fechaHora: string | undefined): string {
+    if (!fechaHora) return 'Sin fecha';
+    const date = new Date(fechaHora);
+    return date.toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
   descargarExcel(): void {
