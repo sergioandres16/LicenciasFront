@@ -197,6 +197,35 @@
   }
 }
 
+.info-ejecutivo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background-color: #e3f2fd;
+  border-left: 4px solid #2c5aa0;
+  border-radius: 8px;
+
+  .info-icon {
+    color: #2c5aa0;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #1976d2;
+
+    strong {
+      color: #0d47a1;
+    }
+  }
+}
+
 // Material overrides
 ::ng-deep {
   .mat-mdc-form-field-subscript-wrapper {

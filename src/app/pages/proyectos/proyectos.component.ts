@@ -19,6 +19,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { ProyectoService, Proyecto, CreateProyectoRequest, UpdateProyectoRequest } from '../../services/proyecto.service';
+import { EjecutivoService, Ejecutivo } from '../../services/ejecutivo.service';
 import { ExcelExportService } from '../../services/excel-export.service';
 import { ExportDialogComponent } from '../../components/export-dialog/export-dialog.component';
 import Swal from 'sweetalert2';
@@ -56,6 +57,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: any;
 
   proyectos: Proyecto[] = [];
+  ejecutivos: Ejecutivo[] = [];
   displayedColumns: string[] = ['idProducto', 'producto', 'fechaInicio', 'vigencia', 'vigenciaRestante', 'correos', 'estado', 'acciones'];
 
   // Paginación
@@ -104,6 +106,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
 
   constructor(
     private proyectoService: ProyectoService,
+    private ejecutivoService: EjecutivoService,
     private excelService: ExcelExportService,
     private fb: FormBuilder,
     private dialog: MatDialog,
@@ -114,6 +117,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProyectos();
+    this.loadEjecutivos();
     // Actualizar cada minuto para refrescar vigencia restante
     this.updateTimer = setInterval(() => {
       this.loadProyectos();
@@ -133,7 +137,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
       fechaInicio: [new Date(), [Validators.required]],
       vigenciaValor: [1, [Validators.required, Validators.min(1)]],
       vigenciaUnidad: ['meses', [Validators.required]],
-      correoVendedor1: ['', [Validators.required, Validators.email]],
+      vendedor1Id: [null, [Validators.required]],
       correoVendedor2: ['', [Validators.email]],
       correoJefeVendedor: ['', [Validators.email]],
       activo: [true]
@@ -152,6 +156,17 @@ export class ProyectosComponent implements OnInit, OnDestroy {
           Swal.fire('Error', 'No se pudieron cargar los proyectos', 'error');
         }
       });
+  }
+
+  loadEjecutivos(): void {
+    this.ejecutivoService.getEjecutivos(0, 1000).subscribe({
+      next: (response) => {
+        this.ejecutivos = response.content;
+      },
+      error: (error) => {
+        console.error('Error al cargar ejecutivos:', error);
+      }
+    });
   }
 
   onPageChange(event: PageEvent): void {
@@ -245,7 +260,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
         fechaInicio: fechaInicio,
         vigenciaValor: vigenciaValor,
         vigenciaUnidad: vigenciaUnidad,
-        correoVendedor1: proyecto.correoVendedor1,
+        vendedor1Id: proyecto.vendedor1Id,
         correoVendedor2: proyecto.correoVendedor2 || '',
         correoJefeVendedor: proyecto.correoJefeVendedor || '',
         activo: proyecto.activo !== undefined ? proyecto.activo : true
@@ -299,7 +314,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
         producto: formValue.producto,
         fechaInicio: fechaInicio,
         vigencia: vigencia,
-        correoVendedor1: formValue.correoVendedor1,
+        vendedor1Id: formValue.vendedor1Id,
         correoVendedor2: formValue.correoVendedor2 || undefined,
         correoJefeVendedor: formValue.correoJefeVendedor || undefined,
         activo: formValue.activo
@@ -323,7 +338,7 @@ export class ProyectosComponent implements OnInit, OnDestroy {
         producto: formValue.producto,
         fechaInicio: fechaInicio,
         vigencia: vigencia,
-        correoVendedor1: formValue.correoVendedor1,
+        vendedor1Id: formValue.vendedor1Id,
         correoVendedor2: formValue.correoVendedor2 || undefined,
         correoJefeVendedor: formValue.correoJefeVendedor || undefined
       };
@@ -547,8 +562,8 @@ export class ProyectosComponent implements OnInit, OnDestroy {
 
   getCorreosInfo(proyecto: Proyecto): string[] {
     const correos = [];
-    if (proyecto.correoVendedor1) {
-      correos.push(`Vendedor 1: ${proyecto.correoVendedor1}`);
+    if (proyecto.vendedor1Nombre && proyecto.vendedor1Email) {
+      correos.push(`Ejecutivo: ${proyecto.vendedor1Nombre} (${proyecto.vendedor1Email})`);
     }
     if (proyecto.correoVendedor2) {
       correos.push(`Vendedor 2: ${proyecto.correoVendedor2}`);
@@ -564,7 +579,10 @@ export class ProyectosComponent implements OnInit, OnDestroy {
   }
 
   getCorreosPrincipales(proyecto: Proyecto): string {
-    return proyecto.correoVendedor1 || '';
+    if (proyecto.vendedor1Nombre && proyecto.vendedor1Email) {
+      return `${proyecto.vendedor1Nombre} (${proyecto.vendedor1Email})`;
+    }
+    return '';
   }
 
   getCorreosAdicionales(proyecto: Proyecto): number {
@@ -721,5 +739,15 @@ export class ProyectosComponent implements OnInit, OnDestroy {
         Swal.fire('Error', 'No se pudo descargar el Excel', 'error');
       }
     });
+  }
+
+  getVendedorNombre(vendedorId: number): string {
+    const vendedor = this.ejecutivos.find(e => e.id === vendedorId);
+    return vendedor ? vendedor.nombreEjecutivo : '';
+  }
+
+  getVendedorEmail(vendedorId: number): string {
+    const vendedor = this.ejecutivos.find(e => e.id === vendedorId);
+    return vendedor ? vendedor.email : '';
   }
 }

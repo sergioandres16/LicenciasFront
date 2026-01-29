@@ -157,7 +157,6 @@ export class CertificadoComponent implements OnInit, OnDestroy {
       direccion: [''],
       codigoPostal: ['', [Validators.pattern('^[0-9]{5}$')]],
       telefono: ['', [Validators.pattern('^[0-9]{7,15}$')]],
-      correoEjecutivo1: ['', [Validators.email]],
       correoEjecutivo2: ['', [Validators.email]],
       correoEjecutivo3: ['', [Validators.email]]
     });
@@ -245,7 +244,6 @@ export class CertificadoComponent implements OnInit, OnDestroy {
         direccion: certificado.direccion,
         codigoPostal: certificado.codigoPostal,
         telefono: certificado.telefono,
-        correoEjecutivo1: certificado.correoEjecutivo1,
         correoEjecutivo2: certificado.correoEjecutivo2,
         correoEjecutivo3: certificado.correoEjecutivo3
       });
@@ -537,14 +535,14 @@ export class CertificadoComponent implements OnInit, OnDestroy {
 
   getCorreosInfo(certificado: Certificado): string[] {
     const correos = [];
-    if (certificado.correoEjecutivo1) {
-      correos.push(`Ejecutivo 1: ${certificado.correoEjecutivo1}`);
+    if (certificado.ejecutivoEmail) {
+      correos.push(`Ejecutivo: ${certificado.ejecutivoNombre} (${certificado.ejecutivoEmail})`);
     }
     if (certificado.correoEjecutivo2) {
-      correos.push(`Ejecutivo 2: ${certificado.correoEjecutivo2}`);
+      correos.push(`Correo 2: ${certificado.correoEjecutivo2}`);
     }
     if (certificado.correoEjecutivo3) {
-      correos.push(`Ejecutivo 3: ${certificado.correoEjecutivo3}`);
+      correos.push(`Correo 3: ${certificado.correoEjecutivo3}`);
     }
     return correos;
   }
@@ -554,7 +552,17 @@ export class CertificadoComponent implements OnInit, OnDestroy {
   }
 
   hasCorreos(certificado: Certificado): boolean {
-    return !!(certificado.correoEjecutivo1 || certificado.correoEjecutivo2 || certificado.correoEjecutivo3);
+    return !!(certificado.ejecutivoEmail || certificado.correoEjecutivo2 || certificado.correoEjecutivo3);
+  }
+
+  getEjecutivoNombre(ejecutivoId: number): string {
+    const ejecutivo = this.ejecutivos.find(e => e.id === ejecutivoId);
+    return ejecutivo ? ejecutivo.nombreEjecutivo : '';
+  }
+
+  getEjecutivoEmail(ejecutivoId: number): string {
+    const ejecutivo = this.ejecutivos.find(e => e.id === ejecutivoId);
+    return ejecutivo ? ejecutivo.email : '';
   }
 
   descargarExcel(): void {

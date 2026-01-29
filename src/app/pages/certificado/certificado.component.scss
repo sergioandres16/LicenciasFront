@@ -747,3 +747,40 @@ $border-color: #e0e0e0;
     }
   }
 }
+
+// Estilos para la información del ejecutivo
+.info-ejecutivo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background-color: #e3f2fd;
+  border-left: 4px solid $primary-color;
+  border-radius: 8px;
+
+  .info-icon {
+    color: $primary-color;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .info-text {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.5;
+
+    strong {
+      color: $primary-color;
+      font-weight: 600;
+    }
+  }
+}
+
+// Badge para mostrar el email del ejecutivo
+.email-badge {
+  color: #666;
+  font-size: 0.9em;
+  font-style: italic;
+}

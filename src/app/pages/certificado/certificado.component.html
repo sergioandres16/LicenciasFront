@@ -426,15 +426,19 @@
         <div class="correos-section">
           <div class="section-title">Correos de Notificación</div>
 
+          <!-- Texto informativo del ejecutivo principal -->
+          <div class="info-ejecutivo" *ngIf="certificadoForm.get('ejecutivoId')?.value">
+            <mat-icon class="info-icon">info</mat-icon>
+            <span class="info-text">
+              Se enviará notificación al ejecutivo:
+              <strong>
+                {{ getEjecutivoNombre(certificadoForm.get('ejecutivoId')?.value) }}
+                ({{ getEjecutivoEmail(certificadoForm.get('ejecutivoId')?.value) }})
+              </strong>
+            </span>
+          </div>
+
           <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Correo Ejecutivo 1</mat-label>
-              <input matInput formControlName="correoEjecutivo1" type="email">
-              <mat-icon matSuffix>email</mat-icon>
-              <mat-error *ngIf="certificadoForm.get('correoEjecutivo1')?.hasError('email')">
-                Ingrese un correo válido
-              </mat-error>
-            </mat-form-field>
 
             <mat-form-field appearance="outline">
               <mat-label>Correo Ejecutivo 2 (Opcional)</mat-label>
@@ -522,7 +526,12 @@
           </div>
           <div class="detalle-item">
             <label>Ejecutivo:</label>
-            <span>{{selectedCertificado.ejecutivoNombre || 'N/A'}}</span>
+            <span>
+              {{selectedCertificado.ejecutivoNombre || 'N/A'}}
+              <span *ngIf="selectedCertificado.ejecutivoEmail" class="email-badge">
+                ({{selectedCertificado.ejecutivoEmail}})
+              </span>
+            </span>
           </div>
           <div class="detalle-item">
             <label>Fecha de Emisión:</label>
@@ -596,10 +605,6 @@
           Correos del Ejecutivo
         </h3>
         <div class="detalle-grid">
-          <div class="detalle-item">
-            <label>Correo Ejecutivo 1:</label>
-            <span>{{selectedCertificado.correoEjecutivo1 || '-'}}</span>
-          </div>
           <div class="detalle-item">
             <label>Correo Ejecutivo 2:</label>
             <span>{{selectedCertificado.correoEjecutivo2 || '-'}}</span>

@@ -16,6 +16,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE, NativeDateAdapter, DateAdapter } from '@angular/material/core';
 
 import { LicenciaManagementService, Licencia, CreateLicenciaRequest, UpdateLicenciaRequest } from '../../services/licencia-management.service';
+import { EjecutivoService, Ejecutivo } from '../../services/ejecutivo.service';
 import Swal from 'sweetalert2';
 
 // Formato de fecha personalizado para DD/MM/YYYY
@@ -124,8 +125,11 @@ export class LicenciasComponent implements OnInit, OnDestroy {
 
   vigenciaValores = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
+  ejecutivos: Ejecutivo[] = [];
+
   constructor(
     private licenciaService: LicenciaManagementService,
+    private ejecutivoService: EjecutivoService,
     private fb: FormBuilder,
     private dialog: MatDialog,
     private snackBar: MatSnackBar
@@ -135,6 +139,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadLicencias();
+    this.loadEjecutivos();
     // Actualizar cada 30 segundos para refrescar el tiempo restante más frecuentemente
     this.updateTimer = setInterval(() => {
       this.loadLicencias();
@@ -153,6 +158,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
       mac: ['', [Validators.required, Validators.pattern(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/)]],
       estado: ['1', [Validators.required]],
       observacion: [''],
+      ejecutivoId: [null, [Validators.required]],
       vigenciaValor: [1, [Validators.required, Validators.min(1), Validators.max(10)]],
       vigenciaUnidad: ['dias', [Validators.required]]
     });
@@ -258,6 +264,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
         mac: licencia.mac,
         estado: licencia.estado,
         observacion: licencia.observacion || '',
+        ejecutivoId: licencia.ejecutivoId,
         vigenciaValor: Math.min(vigenciaValor, 10),
         vigenciaUnidad: vigenciaUnidad
       });
@@ -265,7 +272,8 @@ export class LicenciasComponent implements OnInit, OnDestroy {
       this.licenciaForm.reset({
         estado: '1',
         vigenciaValor: 1,
-        vigenciaUnidad: 'dias'
+        vigenciaUnidad: 'dias',
+        ejecutivoId: null
       });
     }
 
@@ -298,6 +306,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
         mac: formValue.mac,
         estado: formValue.estado,
         observacion: formValue.observacion,
+        ejecutivoId: formValue.ejecutivoId,
         vigenciaValor: formValue.vigenciaValor,
         vigenciaUnidad: formValue.vigenciaUnidad
       };
@@ -320,6 +329,7 @@ export class LicenciasComponent implements OnInit, OnDestroy {
         mac: formValue.mac,
         estado: formValue.estado,
         observacion: formValue.observacion,
+        ejecutivoId: formValue.ejecutivoId,
         vigenciaValor: formValue.vigenciaValor,
         vigenciaUnidad: formValue.vigenciaUnidad
       };
@@ -514,5 +524,26 @@ export class LicenciasComponent implements OnInit, OnDestroy {
         Swal.fire('Error', 'No se pudo descargar el PDF', 'error');
       }
     });
+  }
+
+  loadEjecutivos(): void {
+    this.ejecutivoService.getEjecutivos(0, 1000).subscribe({
+      next: (response) => {
+        this.ejecutivos = response.content;
+      },
+      error: (error) => {
+        console.error('Error al cargar ejecutivos:', error);
+      }
+    });
+  }
+
+  getEjecutivoNombre(ejecutivoId: number): string {
+    const ejecutivo = this.ejecutivos.find(e => e.id === ejecutivoId);
+    return ejecutivo ? ejecutivo.nombreEjecutivo : '';
+  }
+
+  getEjecutivoEmail(ejecutivoId: number): string {
+    const ejecutivo = this.ejecutivos.find(e => e.id === ejecutivoId);
+    return ejecutivo ? ejecutivo.email : '';
   }
 }

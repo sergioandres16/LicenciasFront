@@ -11,6 +11,9 @@ export interface Licencia {
   estado: string;
   observacion?: string;
   vigencia?: string;  // Cambiado de vigenciaDias a vigencia (string)
+  ejecutivoId?: number;
+  ejecutivoNombre?: string;
+  ejecutivoEmail?: string;
   fechaVencimiento?: string;
   diasRestantes?: number;
   horasRestantes?: number;
@@ -32,6 +35,7 @@ export interface CreateLicenciaRequest {
   mac: string;
   estado: string;
   observacion?: string;
+  ejecutivoId?: number;
   vigenciaValor: number;
   vigenciaUnidad: string;
 }
@@ -41,6 +45,7 @@ export interface UpdateLicenciaRequest {
   mac?: string;
   estado?: string;
   observacion?: string;
+  ejecutivoId?: number;
   vigenciaValor?: number;
   vigenciaUnidad?: string;
 }

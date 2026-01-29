@@ -9,6 +9,7 @@ export interface Certificado {
   fechaVencimiento: string;
   ejecutivoId: number;
   ejecutivoNombre?: string;
+  ejecutivoEmail?: string;
   tipoCertificado: string;
   nombres: string;
   primerApellido: string;
@@ -22,7 +23,6 @@ export interface Certificado {
   direccion?: string;
   codigoPostal?: string;
   telefono?: string;
-  correoEjecutivo1?: string;
   correoEjecutivo2?: string;
   correoEjecutivo3?: string;
   vigenciaAnios?: number;
@@ -50,7 +50,6 @@ export interface CreateCertificadoRequest {
   direccion?: string;
   codigoPostal?: string;
   telefono?: string;
-  correoEjecutivo1?: string;
   correoEjecutivo2?: string;
   correoEjecutivo3?: string;
 }
@@ -72,7 +71,6 @@ export interface UpdateCertificadoRequest {
   direccion?: string;
   codigoPostal?: string;
   telefono?: string;
-  correoEjecutivo1?: string;
   correoEjecutivo2?: string;
   correoEjecutivo3?: string;
   activo?: boolean;

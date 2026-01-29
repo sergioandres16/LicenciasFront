@@ -10,7 +10,9 @@ export interface Proyecto {
   fechaInicio: string;
   vigencia: string;
   vigenciaRestante?: number;
-  correoVendedor1: string;
+  vendedor1Id: number;
+  vendedor1Nombre?: string;
+  vendedor1Email?: string;
   correoVendedor2?: string;
   correoJefeVendedor?: string;
   fechaCarga?: string;
@@ -28,7 +30,7 @@ export interface CreateProyectoRequest {
   producto: string;
   fechaInicio: string;
   vigencia: string;
-  correoVendedor1: string;
+  vendedor1Id: number;
   correoVendedor2?: string;
   correoJefeVendedor?: string;
 }
@@ -38,7 +40,7 @@ export interface UpdateProyectoRequest {
   producto?: string;
   fechaInicio?: string;
   vigencia?: string;
-  correoVendedor1?: string;
+  vendedor1Id?: number;
   correoVendedor2?: string;
   correoJefeVendedor?: string;
   activo?: boolean;

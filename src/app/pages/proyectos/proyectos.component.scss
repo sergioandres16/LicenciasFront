@@ -381,6 +381,59 @@
   }
 }
 
+// Información del vendedor seleccionado
+.info-ejecutivo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  background-color: #e3f2fd;
+  border-left: 4px solid #2c5aa0;
+  border-radius: 8px;
+
+  .info-icon {
+    color: #2c5aa0;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #1976d2;
+
+    strong {
+      color: #0d47a1;
+    }
+  }
+}
+
+// Mensaje de ID automático
+.auto-id-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background-color: #e8f5e9;
+  border-left: 4px solid #4caf50;
+  border-radius: 8px;
+
+  mat-icon {
+    color: #4caf50;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  span {
+    font-size: 0.875rem;
+    color: #2e7d32;
+  }
+}
+
 // Información del Excel
 .excel-info {
   background-color: #e3f2fd;

@@ -66,11 +66,11 @@
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Buscar por Correo</mat-label>
+              <mat-label>Buscar por Ejecutivo/Correo</mat-label>
               <input matInput [(ngModel)]="searchCorreo" (keyup.enter)="buscar()"
-                     placeholder="Busca en los 3 correos">
+                     placeholder="Busca por ejecutivo o correos">
               <mat-icon matSuffix>email</mat-icon>
-              <mat-hint>Busca en vendedor 1, 2 y jefe</mat-hint>
+              <mat-hint>Busca en ejecutivo, vendedor 2 y jefe</mat-hint>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="estado-filter">
@@ -144,11 +144,11 @@
 
               <!-- Correos Column -->
               <ng-container matColumnDef="correos">
-                <th mat-header-cell *matHeaderCellDef> Correos </th>
+                <th mat-header-cell *matHeaderCellDef> Ejecutivo/Correos </th>
                 <td mat-cell *matCellDef="let proyecto" class="correos-cell">
                   <div class="correos-container">
                     <div class="correo-principal"
-                         [matTooltip]="'Vendedor 1: ' + proyecto.correoVendedor1"
+                         [matTooltip]="'Ejecutivo: ' + (proyecto.vendedor1Nombre || '') + ' (' + (proyecto.vendedor1Email || '') + ')'"
                          matTooltipPosition="above">
                       <mat-icon class="email-icon">email</mat-icon>
                       <span class="correo-text">{{getCorreosPrincipales(proyecto)}}</span>
@@ -163,9 +163,9 @@
 
                     <mat-menu #correosMenu="matMenu">
                       <div class="correos-menu-content">
-                        <div class="correo-item">
-                          <strong>Vendedor 1:</strong>
-                          <span>{{proyecto.correoVendedor1}}</span>
+                        <div class="correo-item" *ngIf="proyecto.vendedor1Nombre && proyecto.vendedor1Email">
+                          <strong>Ejecutivo:</strong>
+                          <span>{{proyecto.vendedor1Nombre}} ({{proyecto.vendedor1Email}})</span>
                         </div>
                         <div class="correo-item" *ngIf="proyecto.correoVendedor2">
                           <strong>Vendedor 2:</strong>
@@ -300,18 +300,29 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Correo Vendedor 1</mat-label>
-          <input matInput formControlName="correoVendedor1"
-                 placeholder="vendedor1@empresa.com"
-                 type="email">
-          <mat-icon matSuffix>email</mat-icon>
-          <mat-error *ngIf="proyectoForm.get('correoVendedor1')?.hasError('required')">
-            El correo del vendedor 1 es obligatorio
-          </mat-error>
-          <mat-error *ngIf="proyectoForm.get('correoVendedor1')?.hasError('email')">
-            Ingrese un correo válido
+          <mat-label>Vendedor Principal</mat-label>
+          <mat-select formControlName="vendedor1Id" placeholder="Seleccione un vendedor">
+            <mat-option *ngFor="let ejecutivo of ejecutivos" [value]="ejecutivo.id">
+              {{ejecutivo.nombreEjecutivo}} ({{ejecutivo.email}})
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="proyectoForm.get('vendedor1Id')?.hasError('required')">
+            El vendedor principal es obligatorio
           </mat-error>
         </mat-form-field>
+      </div>
+
+      <!-- Información del vendedor seleccionado -->
+      <div class="info-ejecutivo" *ngIf="proyectoForm.get('vendedor1Id')?.value">
+        <mat-icon class="info-icon">info</mat-icon>
+        <span class="info-text">
+          Se enviará notificación al ejecutivo:
+          <strong>
+            {{ getVendedorNombre(proyectoForm.get('vendedor1Id')?.value) }}
+            ({{ getVendedorEmail(proyectoForm.get('vendedor1Id')?.value) }})
+          </strong>
+        </span>
       </div>
 
       <div class="form-row">
@@ -360,7 +371,7 @@
       <mat-icon>info</mat-icon>
       <p>
         <strong>Formato del Excel:</strong><br>
-        Las columnas deben ser: idProducto | Producto | fechaInicio | vigencia | vigenciaRestante | correoVendedor1 | correoVendedor2 | correoJefeVendedor
+        Las columnas deben ser: idProducto | Producto | fechaInicio | vigencia | vigenciaRestante | correoVendedor1 (email del ejecutivo) | correoVendedor2 | correoJefeVendedor
       </p>
     </div>
   </mat-dialog-content>

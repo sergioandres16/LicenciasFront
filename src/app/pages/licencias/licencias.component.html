@@ -243,6 +243,33 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ejecutivo</mat-label>
+          <mat-select formControlName="ejecutivoId" placeholder="Seleccione un ejecutivo">
+            <mat-option *ngFor="let ejecutivo of ejecutivos" [value]="ejecutivo.id">
+              {{ejecutivo.nombreEjecutivo}} ({{ejecutivo.email}})
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>person</mat-icon>
+          <mat-error *ngIf="licenciaForm.get('ejecutivoId')?.hasError('required')">
+            El ejecutivo es obligatorio
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Información del ejecutivo seleccionado -->
+      <div class="info-ejecutivo" *ngIf="licenciaForm.get('ejecutivoId')?.value">
+        <mat-icon class="info-icon">info</mat-icon>
+        <span class="info-text">
+          Ejecutivo asignado:
+          <strong>
+            {{ getEjecutivoNombre(licenciaForm.get('ejecutivoId')?.value) }}
+            ({{ getEjecutivoEmail(licenciaForm.get('ejecutivoId')?.value) }})
+          </strong>
+        </span>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
           <mat-label>Observación</mat-label>
           <textarea matInput
                     formControlName="observacion"

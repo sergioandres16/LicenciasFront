@@ -98,7 +98,7 @@ export class ExcelExportService {
       fechaInicio: this.formatDate(p.fechaInicio),
       vigencia: p.vigencia,
       vigenciaRestante: p.vigenciaRestante || '',
-      correoVendedor1: p.correoVendedor1,
+      vendedor1: p.vendedor1Nombre ? `${p.vendedor1Nombre} (${p.vendedor1Email})` : '',
       correoVendedor2: p.correoVendedor2 || '',
       correoJefeVendedor: p.correoJefeVendedor || ''
     }));
@@ -124,7 +124,7 @@ export class ExcelExportService {
       fechaInicio: this.formatDate(p.fechaInicio),
       vigencia: p.vigencia,
       vigenciaRestante: p.vigenciaRestante || '',
-      correoVendedor1: p.correoVendedor1,
+      vendedor1: p.vendedor1Nombre ? `${p.vendedor1Nombre} (${p.vendedor1Email})` : '',
       correoVendedor2: p.correoVendedor2 || '',
       correoJefeVendedor: p.correoJefeVendedor || '',
       estado: p.estado || '',
